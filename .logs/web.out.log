@@ -1,0 +1,74 @@
+
+> dev
+> next dev
+
+   ▲ Next.js 15.5.14
+   - Local:        http://localhost:3000
+   - Network:      http://10.0.0.4:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 3.7s
+ ○ Compiling / ...
+ ✓ Compiled / in 9.6s (1397 modules)
+ GET / 200 in 10759ms
+ GET / 200 in 487ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 2.8s (1520 modules)
+ GET /api/auth/session 200 in 4185ms
+ GET /api/auth/session 200 in 63ms
+ GET / 200 in 236ms
+ ○ Compiling /cart ...
+ ✓ Compiled /cart in 685ms (1514 modules)
+ GET /cart 200 in 1246ms
+ GET /api/auth/session 200 in 176ms
+ GET /api/auth/session 200 in 31ms
+ GET / 200 in 129ms
+ ○ Compiling /catalog ...
+ ✓ Compiled /catalog in 702ms (1522 modules)
+ GET /catalog 200 in 888ms
+ GET / 200 in 140ms
+ GET /cart 200 in 56ms
+ GET /api/auth/csrf 200 in 69ms
+ POST /api/auth/signout 200 in 26ms
+ GET / 200 in 494ms
+ GET /api/auth/session 200 in 32ms
+ GET /api/auth/session 200 in 37ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 805ms (1532 modules)
+ GET /login 200 in 1108ms
+ GET /api/auth/providers 200 in 89ms
+ GET /api/auth/csrf 200 in 17ms
+ POST /api/auth/callback/credentials? 200 in 158ms
+ GET /api/auth/session 200 in 28ms
+ GET / 200 in 112ms
+ GET / 200 in 109ms
+ GET /api/auth/session 200 in 67ms
+ GET /api/auth/session 200 in 23ms
+ GET /api/auth/session 200 in 51ms
+ GET /api/auth/session 200 in 29ms
+ GET /catalog 200 in 148ms
+ ○ Compiling /product/[slug] ...
+ ✓ Compiled /product/[slug] in 1494ms (1545 modules)
+ GET /product/new-york-yankees-home-authentic-jersey 200 in 2778ms
+ GET /product/new-york-yankees-home-authentic-jersey 200 in 109ms
+ GET /api/auth/session 200 in 151ms
+ GET /api/auth/session 200 in 32ms
+ GET /api/auth/session 200 in 72ms
+ GET /api/auth/session 200 in 39ms
+ GET /api/auth/session 200 in 50ms
+ GET /api/auth/session 200 in 33ms
+ GET /api/auth/session 200 in 41ms
+ GET /api/auth/session 200 in 24ms
+ GET /api/auth/session 200 in 42ms
+ GET /api/auth/session 200 in 30ms
+ GET / 200 in 251ms
+ ✓ Compiled in 1884ms (1559 modules)
+ GET / 200 in 220ms
+ GET /api/auth/session 200 in 157ms
+ GET /api/auth/session 200 in 32ms
+ GET / 200 in 683ms
+ GET /api/auth/session 200 in 75ms
+ GET /api/auth/session 200 in 29ms
+ GET /api/auth/session 200 in 154ms
+ GET /api/auth/session 200 in 47ms

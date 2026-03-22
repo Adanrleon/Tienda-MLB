@@ -1,0 +1,14 @@
+{
+  "name": "tienda-mlb",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:web": "npm --workspace @tienda-mlb/web run dev",
+    "dev:api": "npm --workspace @tienda-mlb/api run start:dev",
+    "build": "npm run build:web && npm run build:api",
+    "build:web": "npm --workspace @tienda-mlb/web run build",
+    "build:api": "npm --workspace @tienda-mlb/api run build"
+  }
+}
