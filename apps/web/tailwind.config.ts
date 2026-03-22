@@ -5,23 +5,30 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: '#09111F',
-        cream: '#F7F3EB',
-        diamond: '#FDFCF9',
-        seam: '#D7263D',
-        dugout: '#143D7A',
-        scoreboard: '#111827',
+        mlb: {
+          navy: '#002D72',
+          red: '#E31937',
+          blue: '#041E42',
+        },
+        premium: {
+          gold: '#C5A963',
+          slate: '#0F172A',
+          cream: '#F8FAFC',
+        },
+        ink: '#0F172A',
+        cream: '#F8FAFC',
+        diamond: '#FFFFFF',
+        seam: '#E31937',
+        dugout: '#002D72',
+        scoreboard: '#0F172A',
       },
       fontFamily: {
         display: ['var(--font-bebas)', 'sans-serif'],
         sans: ['var(--font-manrope)', 'sans-serif'],
       },
       boxShadow: {
-        card: '0 24px 60px rgba(9, 17, 31, 0.14)',
-      },
-      backgroundImage: {
-        pinstripes:
-          'linear-gradient(90deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 12px)',
+        luxury: '0 20px 50px rgba(0, 45, 114, 0.1)',
+        'luxury-hover': '0 30px 60px rgba(0, 45, 114, 0.15)',
       },
     },
   },

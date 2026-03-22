@@ -4,15 +4,16 @@
 
 :root {
   color-scheme: light;
-  --page-bg: #f5f7fb;
+  --page-bg: #f8fafc;
   --page-white: #ffffff;
-  --page-navy: #0d2d63;
-  --page-navy-soft: #133975;
-  --page-red: #dc2340;
-  --page-text: #162033;
-  --page-muted: #667085;
-  --page-line: #e6ebf3;
-  --page-panel: #f8fafd;
+  --page-navy: #002d72; /* MLB Official Navy */
+  --page-navy-deep: #001e4d;
+  --page-red: #e31937; /* MLB Official Red */
+  --page-text: #0f172a;
+  --page-muted: #64748b;
+  --page-line: #e2e8f0;
+  --page-panel: #ffffff;
+  --accent-gold: #c5a963;
 }
 
 html {
@@ -22,150 +23,140 @@ html {
 
 body {
   min-height: 100vh;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 247, 251, 0.98) 100%);
+  background: var(--page-bg);
   color: var(--page-text);
   font-feature-settings: 'ss01' on, 'cv01' on;
 }
 
-.hero-grid {
-  background-image:
-    linear-gradient(rgba(13, 45, 99, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(13, 45, 99, 0.04) 1px, transparent 1px),
-    linear-gradient(135deg, #ffffff 0%, #f7f9fc 100%);
-  background-size: 44px 44px, 44px 44px, auto, auto;
+/* Premium Textures */
+.bg-pinstripes {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(0, 45, 114, 0.03),
+    rgba(0, 45, 114, 0.03) 1px,
+    transparent 1px,
+    transparent 16px
+  );
 }
 
-.glow-card {
-  box-shadow:
-    0 6px 20px rgba(16, 24, 40, 0.05),
-    0 18px 48px rgba(16, 24, 40, 0.08);
+.bg-noise {
+  position: relative;
 }
 
-.section-shell {
-  @apply relative overflow-hidden rounded-[1.15rem] border;
-  border-color: var(--page-line);
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 4px 18px rgba(16, 24, 40, 0.04);
-}
-
-.section-shell::after {
+.bg-noise::before {
   content: '';
   position: absolute;
-  inset: auto 0 0 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(13, 45, 99, 0.06) 50%, transparent 100%);
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3External-link%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.015;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.glass-panel {
+  @apply border border-white/20 bg-white/70 backdrop-blur-md;
+}
+
+.glass-panel-dark {
+  @apply border border-white/10 bg-black/40 backdrop-blur-lg;
+}
+
+/* Section Shells */
+.section-shell {
+  @apply relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300;
+}
+
+.section-shell:hover {
+  @apply border-slate-300 shadow-md;
 }
 
 .section-shell-dark {
-  @apply relative overflow-hidden rounded-[1.15rem] border text-white;
-  border-color: rgba(255, 255, 255, 0.06);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0)),
-    linear-gradient(135deg, var(--page-navy-soft) 0%, var(--page-navy) 72%);
-  box-shadow: 0 16px 40px rgba(13, 45, 99, 0.24);
+  @apply relative overflow-hidden rounded-2xl border border-white/5 bg-slate-900 text-white shadow-2xl;
+  background: linear-gradient(135deg, #001e4d 0%, #000c24 100%);
 }
 
-.section-shell-dark::after {
+/* Luxury Card Effect */
+.luxury-card {
+  @apply relative overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-500 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl;
+}
+
+.luxury-card::before {
   content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 14px 14px;
-  opacity: 0.18;
-  pointer-events: none;
+  @apply absolute inset-0 opacity-0 transition-opacity duration-500 px-4 py-4;
+  background: radial-gradient(circle at top right, rgba(0, 45, 114, 0.03), transparent 70%);
 }
 
+.luxury-card:hover::before {
+  @apply opacity-100;
+}
+
+/* Typography & Labels */
 .caps-label {
-  @apply text-xs font-semibold uppercase tracking-[0.24em];
+  @apply text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500;
 }
 
-.info-chip {
-  @apply inline-flex items-center rounded-md border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em];
-  border-color: var(--page-line);
-  background: #ffffff;
-  color: rgba(22, 32, 51, 0.74);
+.display-title {
+  @apply font-display uppercase leading-[0.85] tracking-tight;
 }
 
-.form-control {
-  @apply rounded-md border px-4 py-3 text-sm outline-none transition;
-  border-color: var(--page-line);
-  background: var(--page-white);
+/* Custom Utilities */
+.text-glow {
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
-.form-control:focus {
-  border-color: rgba(220, 35, 64, 0.42);
-  box-shadow: 0 0 0 3px rgba(220, 35, 64, 0.08);
+.btn-premium {
+  @apply relative inline-flex items-center justify-center overflow-hidden rounded-full px-8 py-3.5 text-sm font-bold uppercase tracking-widest transition-all duration-300 active:scale-95;
 }
 
-.noise {
-  position: relative;
+.btn-premium-primary {
+  @apply btn-premium bg-slate-900 text-white hover:bg-black hover:shadow-lg hover:shadow-slate-900/20;
 }
 
-.noise::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(9, 17, 31, 0.045) 0.7px, transparent 0.7px);
-  background-size: 11px 11px;
-  pointer-events: none;
-  opacity: 0.55;
+.btn-premium-secondary {
+  @apply btn-premium border border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50;
 }
 
-.fade-up {
-  animation: fade-up 700ms ease both;
+.stadium-overlay {
+  @apply absolute inset-0 pointer-events-none;
+  background: radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.15), transparent 70%);
 }
 
-.stadium-band {
-  position: relative;
+/* Animations */
+.animate-in {
+  animation: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.stadium-band::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      90deg,
-      rgba(220, 35, 64, 0.03) 0%,
-      rgba(255, 255, 255, 0.2) 25%,
-      rgba(13, 45, 99, 0.04) 100%
-    );
-  pointer-events: none;
-}
-
-.ticket-edge {
-  position: relative;
-}
-
-.ticket-edge::before,
-.ticket-edge::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  background: var(--page-bg);
-  transform: translateY(-50%);
-}
-
-.ticket-edge::before {
-  left: -9px;
-}
-
-.ticket-edge::after {
-  right: -9px;
-}
-
-@keyframes fade-up {
+@keyframes slide-up {
   from {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }

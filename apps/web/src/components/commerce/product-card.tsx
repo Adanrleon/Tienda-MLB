@@ -5,7 +5,16 @@ import { motion } from 'framer-motion';
 import { Product } from '@/types/product';
 import { formatCurrency } from '@/lib/utils';
 import { Badge } from '../ui/badge';
-import { JerseyVisual } from '../ui/jersey-visual';
+
+const TEAM_LOGOS: Record<string, string> = {
+  'Arizona Diamondbacks': '109',
+  'Atlanta Braves': '144',
+  'Boston Red Sox': '111',
+  'Chicago Cubs': '112',
+  'Los Angeles Dodgers': '119',
+  'New York Yankees': '147',
+  'San Diego Padres': '135',
+};
 
 export function ProductCard({
   product,
@@ -15,61 +24,88 @@ export function ProductCard({
   index?: number;
 }) {
   const imageUrl = product.images[0]?.url;
+  const teamId = TEAM_LOGOS[product.team];
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 18 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.06, duration: 0.45 }}
+      transition={{ delay: index * 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="group"
     >
       <Link
         href={`/product/${product.slug}`}
-        className="glow-card block overflow-hidden rounded-[0.95rem] border border-scoreboard/8 bg-white transition duration-300 hover:-translate-y-1"
+        className="luxury-card block h-full"
       >
-        <div className="relative bg-[linear-gradient(180deg,#f7f9fc,#eef3f8)] p-4">
+        <div className="relative aspect-[4/5] overflow-hidden bg-slate-50">
           {imageUrl ? (
             <img
               src={imageUrl}
               alt={product.name}
-              className="h-72 w-full rounded-[0.65rem] object-contain"
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
             />
           ) : (
-            <JerseyVisual
-              team={product.team}
-              category={product.category}
-              accent={product.accent}
-              className="h-72 rounded-[0.65rem]"
-            />
+            <div className="flex h-full w-full items-center justify-center bg-slate-100 italic text-slate-400">
+              No Image
+            </div>
           )}
-          <div className="absolute left-7 top-7">
-            <Badge className="border-white/0 bg-white text-scoreboard/76">
+          
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          
+          <div className="absolute left-4 top-4 flex flex-col gap-2">
+            <Badge className="bg-white/90 text-slate-900 backdrop-blur-sm">
               {product.category}
             </Badge>
           </div>
-          <div className="absolute bottom-7 right-7 rounded-md bg-scoreboard px-3 py-2 text-right text-white shadow-[0_12px_26px_rgba(16,24,40,0.18)]">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-white/55">Price</p>
-            <p className="font-sans text-2xl font-extrabold leading-none">
-              {formatCurrency(product.priceInCents)}
-            </p>
+
+          <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+             <div className="flex items-center justify-between gap-2 text-white">
+                <p className="text-xs font-bold uppercase tracking-widest">View Details</p>
+                <div className="h-px flex-1 bg-white/30" />
+             </div>
           </div>
         </div>
-        <div className="px-4 pb-5 pt-4">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-scoreboard/42">
-            {product.team}
-          </p>
-          <h3 className="mt-2 font-sans text-xl font-extrabold uppercase leading-[1.02] tracking-[-0.04em] text-scoreboard">
-            {product.name}
-          </h3>
-          <p className="mt-3 text-sm leading-6 text-scoreboard/62">
-            {product.description}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {product.availableSizes.slice(0, 4).map((size) => (
-              <span key={size} className="info-chip">
-                {size}
-              </span>
-            ))}
+
+        <div className="p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                {teamId && (
+                  <img
+                    src={`https://www.mlbstatic.com/team-logos/${teamId}.svg`}
+                    alt={product.team}
+                    className="h-4 w-4"
+                  />
+                )}
+                <p className="caps-label text-[9px]">{product.team}</p>
+              </div>
+              <h3 className="mt-2 text-lg font-bold leading-tight text-slate-900 line-clamp-2">
+                {product.name}
+              </h3>
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-bold text-mlb-navy">
+                {formatCurrency(product.priceInCents)}
+              </p>
+            </div>
+          </div>
+          
+          <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+            <div className="flex gap-1.5">
+              {product.availableSizes.slice(0, 3).map((size) => (
+                <span key={size} className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 text-[10px] font-bold text-slate-500 transition-colors group-hover:border-slate-300 group-hover:text-slate-900">
+                  {size}
+                </span>
+              ))}
+              {product.availableSizes.length > 3 && (
+                <span className="flex h-7 w-7 items-center justify-center text-[10px] font-bold text-slate-400">
+                  +{product.availableSizes.length - 3}
+                </span>
+              )}
+            </div>
+            <button className="text-[10px] font-bold uppercase tracking-widest text-mlb-red transition-colors hover:text-mlb-navy">
+              Shop Now
+            </button>
           </div>
         </div>
       </Link>
