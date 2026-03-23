@@ -1,6 +1,7 @@
 'use client';
 
 import { ChangeEvent, useState, useTransition } from 'react';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ApiError, deleteProduct, createOrUpdateProduct } from '@/lib/api';
 import { Product } from '@/types/product';
 import { cn, formatCurrency } from '@/lib/utils';
@@ -118,6 +119,12 @@ export function AdminPanel({
   const [isPending, startTransition] = useTransition();
   const { pushToast } = useToast();
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [editConfirmProduct, setEditConfirmProduct] = useState<Product | null>(null);
+
   const handleFieldChange = (
     field: keyof Pick<FormState, 'name' | 'team' | 'category' | 'description' | 'price'>,
     value: string,
@@ -221,6 +228,7 @@ export function AdminPanel({
   const resetForm = () => {
     setEditingId(null);
     setForm(createInitialFormState());
+    setIsFormOpen(false);
   };
 
   const handleSubmit = () => {
@@ -341,6 +349,44 @@ export function AdminPanel({
       sizeStock: nextSizeStock,
       imageUrls: product.images.map((image) => image.url),
     });
+    setIsFormOpen(true);
+  };
+
+  const handleEditClick = (product: Product) => {
+    if (isFormOpen && !editingId) {
+      const isNewFormDirty = form.name.trim() !== '' || form.description.trim() !== '' || form.imageUrls.length > 0;
+      if (isNewFormDirty) {
+        setEditConfirmProduct(product);
+        return;
+      }
+    }
+
+    if (editingId) {
+      if (editingId === product.id) {
+         document.getElementById('admin-library-top')?.scrollIntoView({ behavior: 'smooth' });
+         return;
+      }
+      
+      const currentProductBeingEdited = products.find(p => p.id === editingId);
+      if (currentProductBeingEdited) {
+        const isProductDirty = 
+          form.name !== currentProductBeingEdited.name ||
+          form.description !== currentProductBeingEdited.description ||
+          form.price !== (currentProductBeingEdited.priceInCents / 100).toFixed(2) ||
+          form.team !== currentProductBeingEdited.team ||
+          form.category !== currentProductBeingEdited.category ||
+          form.featured !== currentProductBeingEdited.featured ||
+          form.imageUrls.length !== currentProductBeingEdited.images.length;
+
+        if (isProductDirty) {
+          setEditConfirmProduct(product);
+          return;
+        }
+      }
+    }
+
+    handleEdit(product);
+    document.getElementById('admin-library-top')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleDelete = (productId: string) => {
@@ -369,17 +415,45 @@ export function AdminPanel({
 
   const previewSlug = slugify(form.name);
 
+  // Library Pagination & Filtering logic
+  const filteredLibraryProducts = products.filter((p) => 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    p.team.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const ITEMS_PER_PAGE = 5;
+  const totalPages = Math.ceil(filteredLibraryProducts.length / ITEMS_PER_PAGE);
+  const paginatedLibraryProducts = filteredLibraryProducts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    document.getElementById('admin-library-top')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
-    <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]">
+    <div className="mx-auto max-w-6xl">
+      {isFormOpen || editingId ? (
       <section className="section-shell p-6 lg:p-8">
         <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="font-display text-4xl uppercase tracking-[0.06em] text-scoreboard">
-              {editingId ? 'Edit Product' : 'Create Product'}
-            </p>
-            <p className="mt-2 text-sm text-scoreboard/60">
-              Slug, accent and other internal values are generated automatically.
-            </p>
+          <div className="flex items-start gap-4">
+            <button 
+              onClick={resetForm} 
+              className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-scoreboard/5 hover:bg-scoreboard/10 transition-colors"
+              title="Go Back to Library"
+              aria-label="Go Back"
+            >
+              <ChevronLeft className="h-5 w-5 text-scoreboard/70" />
+            </button>
+            <div>
+              <p className="font-display text-4xl uppercase tracking-[0.06em] text-scoreboard">
+                {editingId ? 'Edit Product' : 'Create Product'}
+              </p>
+              <p className="mt-2 text-sm text-scoreboard/60">
+                Slug, accent and other internal values are generated automatically.
+              </p>
+            </div>
           </div>
           {editingId ? (
             <Button variant="ghost" onClick={resetForm}>
@@ -388,219 +462,287 @@ export function AdminPanel({
           ) : null}
         </div>
 
-        <div className="mt-6 grid gap-4">
-          <label className="flex flex-col gap-2">
-            <span className="caps-label text-scoreboard/50">Name</span>
-            <input
-              value={form.name}
-              onChange={(event) => handleFieldChange('name', event.target.value)}
-              placeholder="Los Angeles Dodgers Home Elite Jersey"
-              className="form-control"
-            />
-            <span className="text-xs text-scoreboard/50">
-              Product URL: {previewSlug ? `/product/${previewSlug}` : 'Generated from name'}
-            </span>
-          </label>
+        <div className="mt-8 grid gap-8 lg:grid-cols-12">
+          {/* Main Content Column */}
+          <div className="flex flex-col gap-6 lg:col-span-8">
+            <div className="rounded-[1.75rem] border border-scoreboard/10 bg-[#fbfaf8] p-6 lg:p-8">
+              <h3 className="mb-6 flex items-center font-display text-2xl tracking-[0.04em] text-scoreboard">
+                Basic Information
+              </h3>
+              
+              <div className="grid gap-6">
+                <label className="flex flex-col gap-2">
+                  <span className="caps-label text-scoreboard/50">Product Name</span>
+                  <input
+                    value={form.name}
+                    onChange={(event) => handleFieldChange('name', event.target.value)}
+                    placeholder="e.g. Los Angeles Dodgers Home Elite Jersey"
+                    className="w-full rounded-2xl border border-scoreboard/10 bg-white px-4 py-3 outline-none transition focus:border-mlb-red focus:ring-1 focus:ring-mlb-red font-medium"
+                  />
+                  <span className="text-xs font-semibold text-scoreboard/40">
+                    URL: <span className="text-mlb-navy">{previewSlug ? `/product/${previewSlug}` : 'auto-generated'}</span>
+                  </span>
+                </label>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="flex flex-col gap-2">
-              <span className="caps-label text-scoreboard/50">Team</span>
-              <select
-                value={form.team}
-                onChange={(event) => handleFieldChange('team', event.target.value)}
-                className="form-control"
-              >
-                {TEAM_OPTIONS.map((team) => (
-                  <option key={team.value} value={team.value}>
-                    {team.value}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="flex flex-col gap-2">
-              <span className="caps-label text-scoreboard/50">Category</span>
-              <select
-                value={form.category}
-                onChange={(event) => handleFieldChange('category', event.target.value)}
-                className="form-control"
-              >
-                {CATEGORY_OPTIONS.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <label className="flex flex-col gap-2">
-            <span className="caps-label text-scoreboard/50">Price (USD)</span>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={form.price}
-              onChange={(event) => handleFieldChange('price', event.target.value)}
-              className="form-control"
-            />
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span className="caps-label text-scoreboard/50">Description</span>
-            <textarea
-              value={form.description}
-              onChange={(event) => handleFieldChange('description', event.target.value)}
-              placeholder="Pinstriped presence with a championship silhouette built for collectors..."
-              className="form-control min-h-28"
-            />
-          </label>
-
-          <div className="rounded-[1.75rem] border border-scoreboard/10 bg-white px-4 py-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-scoreboard/50">
-                  Available Sizes
-                </p>
-                <p className="mt-1 text-sm text-scoreboard/60">
-                  Choose the sizes you want to sell and assign stock visually.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-3">
-              {SIZE_OPTIONS.map((size) => {
-                const active = form.selectedSizes.includes(size);
-
-                return (
-                  <button
-                    key={size}
-                    type="button"
-                    onClick={() => toggleSize(size)}
-                    className={cn(
-                      'rounded-full border px-4 py-2 text-sm font-semibold transition',
-                      active
-                        ? 'border-scoreboard bg-scoreboard text-white'
-                        : 'border-scoreboard/10 bg-white text-scoreboard hover:border-scoreboard/30',
-                    )}
-                  >
-                    {size}
-                  </button>
-                );
-              })}
-            </div>
-
-            {form.selectedSizes.length ? (
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                {form.selectedSizes.map((size) => (
-                  <label
-                    key={size}
-                    className="flex items-center justify-between rounded-2xl border border-scoreboard/10 bg-[#fbfaf8] px-4 py-3"
-                  >
-                    <span className="text-sm font-semibold text-scoreboard">{size}</span>
-                    <input
-                      type="number"
-                      min="0"
-                      value={form.sizeStock[size]}
-                      onChange={(event) => updateSizeStock(size, event.target.value)}
-                      className="w-24 rounded-xl border border-scoreboard/10 bg-white px-3 py-2 text-right text-sm outline-none transition focus:border-seam/40"
-                    />
+                <div className="grid gap-6 md:grid-cols-2">
+                  <label className="flex flex-col gap-2">
+                    <span className="caps-label text-scoreboard/50">Team</span>
+                    <select
+                      value={form.team}
+                      onChange={(event) => handleFieldChange('team', event.target.value)}
+                      className="w-full rounded-2xl border border-scoreboard/10 bg-white px-4 py-3 outline-none transition focus:border-mlb-red focus:ring-1 focus:ring-mlb-red font-medium appearance-none"
+                    >
+                      {TEAM_OPTIONS.map((team) => (
+                        <option key={team.value} value={team.value}>
+                          {team.value}
+                        </option>
+                      ))}
+                    </select>
                   </label>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-4 text-sm text-scoreboard/55">
-                Select at least one size to define stock.
-              </p>
-            )}
-          </div>
 
-          <div className="rounded-[1.75rem] border border-scoreboard/10 bg-white px-4 py-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-scoreboard/50">
-                  Images
-                </p>
-                <p className="mt-1 text-sm text-scoreboard/60">
-                  Upload one or more images for the product gallery.
-                </p>
+                  <label className="flex flex-col gap-2">
+                    <span className="caps-label text-scoreboard/50">Category</span>
+                    <select
+                      value={form.category}
+                      onChange={(event) => handleFieldChange('category', event.target.value)}
+                      className="w-full rounded-2xl border border-scoreboard/10 bg-white px-4 py-3 outline-none transition focus:border-mlb-red focus:ring-1 focus:ring-mlb-red font-medium appearance-none"
+                    >
+                      {CATEGORY_OPTIONS.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+
+                <label className="flex flex-col gap-2">
+                  <span className="caps-label text-scoreboard/50">Description</span>
+                  <textarea
+                    value={form.description}
+                    onChange={(event) => handleFieldChange('description', event.target.value)}
+                    placeholder="Write a compelling description for this jersey..."
+                    className="w-full rounded-2xl border border-scoreboard/10 bg-white px-4 py-3 outline-none transition focus:border-mlb-red focus:ring-1 focus:ring-mlb-red min-h-[140px] font-medium resize-y"
+                  />
+                </label>
               </div>
-              <span className="rounded-full bg-scoreboard/5 px-3 py-1 text-xs font-semibold text-scoreboard/65">
-                {form.imageUrls.length} uploaded
-              </span>
             </div>
 
-            {form.imageUrls.length ? (
-              <div className="mt-4 space-y-3">
-                {form.imageUrls.map((url, index) => (
-                  <div
-                    key={url}
-                    className="flex items-center justify-between gap-3 rounded-2xl border border-scoreboard/10 bg-[#fbfaf8] px-3 py-3"
-                  >
-                    <div className="flex items-center gap-3">
+            <div className="rounded-[1.75rem] border border-scoreboard/10 bg-[#fbfaf8] p-6 lg:p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="flex items-center font-display text-2xl tracking-[0.04em] text-scoreboard">
+                  Media Gallery
+                </h3>
+                <span className="rounded-full bg-mlb-red/10 px-3 py-1 text-xs font-bold text-mlb-red">
+                  {form.imageUrls.length} File{form.imageUrls.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+
+              {form.imageUrls.length > 0 ? (
+                <div className="mb-6 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {form.imageUrls.map((url, index) => (
+                    <div
+                      key={url}
+                      className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-scoreboard/10 bg-white shadow-sm transition-all hover:shadow-md"
+                    >
                       <img
                         src={url}
                         alt={`Uploaded product image ${index + 1}`}
-                        className="h-14 w-14 rounded-xl object-cover"
+                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
                       />
-                      <div>
-                        <p className="text-sm font-semibold text-scoreboard">
-                          Image {index + 1}
-                        </p>
-                        <p className="max-w-[180px] truncate text-xs text-scoreboard/55">
-                          {url}
-                        </p>
+                      <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 flex items-center justify-center">
+                        <Button 
+                          variant="danger" 
+                          onClick={() => removeImage(url)}
+                          className="scale-90 shadow-xl"
+                        >
+                          Remove
+                        </Button>
                       </div>
                     </div>
-                    <Button variant="ghost" onClick={() => removeImage(url)}>
-                      Remove
-                    </Button>
+                  ))}
+                </div>
+              ) : (
+                <div className="mb-6 flex min-h-[160px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-scoreboard/20 bg-white/50 px-6 py-8 text-center transition-colors hover:bg-white">
+                  <div className="rounded-full bg-scoreboard/5 p-4 mb-4">
+                    <svg className="h-8 w-8 text-scoreboard/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-4 text-sm text-scoreboard/55">
-                No images uploaded yet. The product can still be saved.
-              </p>
-            )}
+                  <p className="text-sm font-semibold text-scoreboard/80">
+                    No images uploaded yet.
+                  </p>
+                  <p className="mt-1 text-xs text-scoreboard/50">
+                    Optimal format: JPG, PNG • Max size: 5MB
+                  </p>
+                </div>
+              )}
 
-            <label className="mt-4 flex flex-col gap-3">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-scoreboard/50">
-                Upload Image
-              </span>
-              <input type="file" accept="image/*" onChange={handleImageUpload} />
-            </label>
+              <label className="relative flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-scoreboard/20 bg-white py-4 px-4 font-semibold text-mlb-navy shadow-sm transition-all hover:bg-slate-50 hover:border-mlb-navy/30">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                </svg>
+                Upload New Image
+                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+              </label>
+            </div>
           </div>
 
-          <label className="flex items-center gap-3 rounded-2xl border border-scoreboard/10 bg-scoreboard/5 px-4 py-3 text-sm font-semibold text-scoreboard">
-            <input
-              type="checkbox"
-              checked={form.featured}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  featured: event.target.checked,
-                }))
-              }
-            />
-            Feature on home page
-          </label>
+          {/* Sidebar Column */}
+          <div className="flex flex-col gap-6 lg:col-span-4">
+            <div className="rounded-[1.75rem] border border-scoreboard/10 bg-[#fbfaf8] p-6">
+              <h3 className="mb-6 font-display text-2xl tracking-[0.04em] text-scoreboard">
+                Pricing
+              </h3>
+              <label className="flex flex-col gap-2">
+                <span className="caps-label text-scoreboard/50">Retail Price (USD)</span>
+                <div className="relative">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-scoreboard/50 font-bold">
+                    $
+                  </div>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={form.price}
+                    onChange={(event) => handleFieldChange('price', event.target.value)}
+                    className="w-full rounded-2xl border border-scoreboard/10 bg-white py-3 pl-8 pr-4 text-lg font-bold outline-none transition focus:border-mlb-red focus:ring-1 focus:ring-mlb-red"
+                  />
+                </div>
+              </label>
+            </div>
 
-          <Button onClick={handleSubmit} disabled={isPending}>
-            {isPending ? 'Saving...' : editingId ? 'Update Product' : 'Create Product'}
+            <div className="rounded-[1.75rem] border border-scoreboard/10 bg-[#fbfaf8] p-6">
+              <h3 className="mb-4 font-display text-2xl tracking-[0.04em] text-scoreboard">
+                Inventory
+              </h3>
+              
+              <div className="mb-4 flex flex-wrap gap-2">
+                {SIZE_OPTIONS.map((size) => {
+                  const active = form.selectedSizes.includes(size);
+                  return (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => toggleSize(size)}
+                      className={cn(
+                        'rounded-full border px-4 py-2 text-sm font-bold transition-all',
+                        active
+                          ? 'border-mlb-navy bg-mlb-navy text-white shadow-md scale-105'
+                          : 'border-scoreboard/20 bg-white text-scoreboard/70 hover:border-scoreboard/50',
+                      )}
+                    >
+                      {size}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {form.selectedSizes.length > 0 ? (
+                <div className="grid gap-3 border-t border-scoreboard/10 pt-4 mt-2">
+                  <p className="text-xs uppercase tracking-widest text-scoreboard/40 font-bold mb-1">Set Stock Levels</p>
+                  {form.selectedSizes.map((size) => (
+                    <label
+                      key={size}
+                      className="flex items-center justify-between rounded-xl border border-scoreboard/5 bg-white px-4 py-2.5 shadow-sm"
+                    >
+                      <span className="font-bold text-scoreboard">{size}</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={form.sizeStock[size]}
+                        onChange={(event) => updateSizeStock(size, event.target.value)}
+                        className="w-20 rounded-lg border border-scoreboard/10 bg-slate-50 px-3 py-1.5 text-right font-medium outline-none transition focus:border-mlb-red"
+                      />
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 mt-2">
+                  <p className="text-xs font-semibold text-amber-800">
+                    ⚠ Select at least one size above to define stock.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-[1.75rem] border border-scoreboard/10 bg-[#fbfaf8] p-6">
+              <h3 className="mb-4 font-display text-2xl tracking-[0.04em] text-scoreboard">
+                Visibility
+              </h3>
+              <label className="group flex cursor-pointer items-center gap-4 rounded-xl border border-scoreboard/10 bg-white px-4 py-4 shadow-sm hover:border-mlb-red/30 transition-colors">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={form.featured}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        featured: event.target.checked,
+                      }))
+                    }
+                    className="peer sr-only"
+                  />
+                  <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors peer-checked:bg-mlb-red"></div>
+                  <div className="absolute left-[2px] top-[2px] h-5 w-5 rounded-full bg-white transition-all peer-checked:translate-x-full"></div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-bold text-scoreboard">Feature Item</span>
+                  <span className="text-xs font-medium text-scoreboard/50">Highlight on the Home Page</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-8 flex justify-center border-t border-scoreboard/10 pt-8">
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isPending} 
+            className="w-full max-w-md py-6 text-xl tracking-widest font-display shadow-xl shadow-mlb-navy/20 active:scale-[0.98] transition-transform hover:scale-105"
+          >
+            {isPending ? 'Saving Data...' : editingId ? 'Update Product' : 'Create Product'}
           </Button>
         </div>
       </section>
+      ) : (
+      <section id="admin-library-top" className="section-shell p-6 lg:p-8 flex flex-col min-h-[600px]">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="font-display text-4xl uppercase tracking-[0.06em] text-scoreboard">
+              Product Library
+            </p>
+            <p className="caps-label text-scoreboard/40 mt-1">
+              Total items: {products.length}
+            </p>
+          </div>
+          <Button onClick={() => { resetForm(); setIsFormOpen(true); }}>
+            Create New Product
+          </Button>
+        </div>
 
-      <section className="section-shell p-6 lg:p-8">
-        <p className="font-display text-4xl uppercase tracking-[0.06em] text-scoreboard">
-          Product Library
-        </p>
-        <div className="mt-6 space-y-4">
-          {products.map((product) => (
+        {/* Search Bar */}
+        <div className="relative mt-6 mb-2">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-scoreboard/40">
+            <Search className="h-4 w-4" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search by product name or team..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full rounded-xl border border-scoreboard/10 py-2.5 pl-10 pr-4 text-sm font-medium outline-none transition-all placeholder:text-scoreboard/40 focus:border-mlb-red focus:bg-white focus:ring-1 focus:ring-mlb-red"
+          />
+        </div>
+
+        <div className="mt-4 flex-1 space-y-4">
+          {paginatedLibraryProducts.length > 0 ? paginatedLibraryProducts.map((product) => (
             <div
               key={product.id}
-              className="rounded-[1.75rem] border border-scoreboard/10 bg-white px-5 py-5"
+              className="rounded-[1.75rem] border border-scoreboard/10 bg-white px-5 py-5 transition-shadow hover:shadow-md"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="max-w-[75%]">
@@ -619,18 +761,124 @@ export function AdminPanel({
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="secondary" onClick={() => handleEdit(product)}>
+                  <Button variant="secondary" onClick={() => handleEditClick(product)}>
                     Edit
                   </Button>
-                  <Button variant="danger" onClick={() => handleDelete(product.id)}>
+                  <Button variant="danger" onClick={() => setDeleteConfirmId(product.id)}>
                     Delete
                   </Button>
                 </div>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="py-20 text-center text-scoreboard/50 text-sm font-semibold">
+              No products found matching "{searchQuery}"
+            </div>
+          )}
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 0 && (
+          <div className="mt-8 flex items-center justify-center gap-1">
+            <button
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="flex h-10 w-10 items-center justify-center text-slate-400 hover:text-slate-900 disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+              if (
+                totalPages <= 5 || 
+                page === 1 || 
+                page === totalPages || 
+                (page >= currentPage - 1 && page <= currentPage + 1)
+              ) {
+                return (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm transition-all ${
+                      currentPage === page
+                        ? 'border border-slate-300 font-bold text-slate-900 shadow-sm bg-white'
+                        : 'font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              }
+              if (page === 2 && currentPage > 3) {
+                return <span key="start-ellipsis" className="flex h-10 w-6 items-end justify-center pb-2 text-slate-400 tracking-[0.2em]">...</span>;
+              }
+              if (page === totalPages - 1 && currentPage < totalPages - 2) {
+                return <span key="end-ellipsis" className="flex h-10 w-6 items-end justify-center pb-2 text-slate-400 tracking-[0.2em]">...</span>;
+              }
+              return null;
+            })}
+
+            <button
+              onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="flex h-10 w-10 items-center justify-center text-slate-400 hover:text-slate-900 disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+        )}
       </section>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-scoreboard/60 backdrop-blur-sm p-4 transition-all">
+          <div className="w-full max-w-sm rounded-[1.75rem] border border-scoreboard/10 bg-white p-6 shadow-2xl">
+            <h4 className="mb-2 font-display text-3xl uppercase tracking-[0.04em] text-scoreboard">
+              Delete Product?
+            </h4>
+            <p className="mb-8 text-sm font-medium text-scoreboard/60">
+              Are you completely sure you want to permanently delete this product? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3 flex-wrap">
+              <Button variant="ghost" onClick={() => setDeleteConfirmId(null)} className="flex-1">
+                Cancel
+              </Button>
+              <Button variant="danger" onClick={() => {
+                handleDelete(deleteConfirmId);
+                setDeleteConfirmId(null);
+              }} className="flex-1">
+                Yes, Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Confirmation Modal */}
+      {editConfirmProduct && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-scoreboard/60 backdrop-blur-sm p-4 transition-all">
+          <div className="w-full max-w-sm rounded-[1.75rem] border border-scoreboard/10 bg-white p-6 shadow-2xl">
+            <h4 className="mb-2 font-display text-3xl uppercase tracking-[0.04em] text-scoreboard">
+              Edit Product?
+            </h4>
+            <p className="mb-8 text-sm font-medium text-scoreboard/60">
+              Are you sure you want to edit "{editConfirmProduct.name}"? If you have unsaved changes in the current form, they will be lost.
+            </p>
+            <div className="flex justify-end gap-3 flex-wrap">
+              <Button variant="ghost" onClick={() => setEditConfirmProduct(null)} className="flex-1">
+                Cancel
+              </Button>
+              <Button onClick={() => {
+                handleEdit(editConfirmProduct);
+                setEditConfirmProduct(null);
+              }} className="flex-1">
+                Proceed
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

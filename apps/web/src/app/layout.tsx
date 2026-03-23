@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { Footer } from '@/components/layout/footer';
 import { Navbar } from '@/components/layout/navbar';
 import { Providers } from '@/components/providers/providers';
+import { FloatingAdminButton } from '@/components/layout/floating-admin-button';
 import './globals.css';
 
 const bebas = Bebas_Neue({
@@ -33,10 +34,11 @@ export default function RootLayout({
         <Providers>
           <div className="relative min-h-screen overflow-x-hidden">
             <Navbar />
-            <main className="relative mx-auto max-w-[88rem] px-4 py-6 sm:px-6 lg:px-8">
+            <main className="relative">
               {children}
             </main>
             <Footer />
+            <FloatingAdminButton />
           </div>
         </Providers>
       </body>

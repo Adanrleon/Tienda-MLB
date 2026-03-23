@@ -39,7 +39,11 @@ export function Navbar() {
     >
       <div className="mx-auto flex max-w-[90rem] items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-10">
         <Link href="/" className="group flex items-center gap-4">
-          <MlbLogo className="h-8 w-auto transition-transform duration-300 group-hover:scale-110" />
+          <img
+            src="/images/Major_League_Baseball_logo.svg.webp"
+            alt="MLB Logo"
+            className="h-10 w-auto transition-transform duration-300 group-hover:scale-110"
+          />
           <div className="hidden lg:block border-l border-slate-200 pl-4">
             <h1 className="display-title text-xl text-slate-900">
               MAJOR LEAGUE <span className="text-mlb-red">JERSEYS</span>
@@ -98,7 +102,7 @@ export function Navbar() {
                 </Button>
               </Link>
             )}
-            
+
             <button className="flex h-10 w-10 items-center justify-center lg:hidden">
               <Menu className="h-6 w-6 text-slate-900" />
             </button>
