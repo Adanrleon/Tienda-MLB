@@ -8,6 +8,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', ...props }, ref) => (
     <button
+      suppressHydrationWarning
       ref={ref}
       className={cn(
         'btn-premium',

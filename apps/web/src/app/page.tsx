@@ -49,7 +49,7 @@ export default async function HomePage() {
                   </Button>
                 </Link>
                 <Link href="/catalog?category=Home">
-                  <button className="group h-16 px-10 rounded-full border-2 border-white/60 text-white text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 hover:bg-white hover:text-slate-900 hover:border-white flex items-center gap-2">
+                  <button suppressHydrationWarning className="group h-16 px-10 rounded-full border-2 border-white/60 text-white text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 hover:bg-white hover:text-slate-900 hover:border-white flex items-center gap-2">
                     View Home Originals
                     <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
                   </button>
@@ -126,14 +126,14 @@ export default async function HomePage() {
 
               <div className="flex flex-wrap gap-4">
                 <Link href="/catalog?team=New York Yankees">
-                  <button className="group relative h-14 overflow-hidden rounded-full bg-mlb-red px-10 text-xs font-bold tracking-[0.15em] uppercase text-white shadow-lg shadow-mlb-red/30 transition-all duration-300 hover:shadow-mlb-red/50 hover:shadow-xl hover:scale-[1.02]">
+                  <button suppressHydrationWarning className="group relative h-14 overflow-hidden rounded-full bg-mlb-red px-10 text-xs font-bold tracking-[0.15em] uppercase text-white shadow-lg shadow-mlb-red/30 transition-all duration-300 hover:shadow-mlb-red/50 hover:shadow-xl hover:scale-[1.02]">
                     {/* Shimmer sweep on hover */}
                     <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
                     <span className="relative">Shop Yankees Collection</span>
                   </button>
                 </Link>
                 <Link href="/catalog">
-                  <button className="group h-14 px-10 rounded-full border-2 border-white/60 text-white text-xs font-bold tracking-[0.15em] uppercase transition-all duration-300 hover:bg-white hover:text-slate-900 flex items-center gap-2">
+                  <button suppressHydrationWarning className="group h-14 px-10 rounded-full border-2 border-white/60 text-white text-xs font-bold tracking-[0.15em] uppercase transition-all duration-300 hover:bg-white hover:text-slate-900 flex items-center gap-2">
                     Browse All Teams
                     <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                   </button>

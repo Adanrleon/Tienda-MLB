@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ShoppingCart, User, Search, Menu } from 'lucide-react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import { useCart } from '../providers/cart-provider';
 import { Button } from '../ui/button';
@@ -19,6 +21,9 @@ export function Navbar() {
   const { data: session } = useSession();
   const { totalItems } = useCart();
   const { scrollY } = useScroll();
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const headerBg = useTransform(
     scrollY,
@@ -65,14 +70,25 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          <div className="hidden items-center rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 transition-colors focus-within:border-mlb-navy focus-within:bg-white md:flex">
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (searchTerm.trim()) {
+                router.push(`/catalog?search=${encodeURIComponent(searchTerm.trim())}`);
+              }
+            }}
+            className="hidden items-center rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 transition-colors focus-within:border-mlb-navy focus-within:bg-white md:flex"
+          >
             <Search className="h-4 w-4 text-slate-400" />
             <input
               type="text"
               placeholder="Search teams, players..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="ml-2 w-48 bg-transparent text-sm outline-none placeholder:text-slate-400"
+              suppressHydrationWarning
             />
-          </div>
+          </form>
 
           <div className="flex items-center border-l border-slate-200 pl-4 gap-2">
             <Link
@@ -88,16 +104,46 @@ export function Navbar() {
             </Link>
 
             {session?.user ? (
-              <button
-                onClick={() => signOut()}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 transition hover:bg-slate-200"
-                title={session.user.name ?? 'Profile'}
-              >
-                <User className="h-5 w-5 text-slate-700" />
-              </button>
+              <div className="relative">
+                <button
+                  suppressHydrationWarning
+                  onClick={() => setUserMenuOpen(o => !o)}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 transition hover:bg-slate-200"
+                  title={session.user.name ?? 'Profile'}
+                >
+                  <User className="h-5 w-5 text-slate-700" />
+                </button>
+
+                {userMenuOpen && (
+                  <>
+                    {/* Backdrop to close on outside click */}
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setUserMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 top-12 z-50 w-56 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-xl ring-1 ring-slate-900/5">
+                      {/* User info header */}
+                      <div className="border-b border-slate-100 px-4 py-3">
+                        <p className="text-xs font-bold text-slate-900 truncate">{session.user.name}</p>
+                        <p className="text-[11px] text-slate-500 truncate">{session.user.email}</p>
+                      </div>
+                      {/* Menu items */}
+                      <div className="p-1.5">
+                        <button
+                          suppressHydrationWarning
+                          onClick={() => { setUserMenuOpen(false); signOut({ callbackUrl: '/' }); }}
+                          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[11px] font-bold uppercase tracking-widest text-mlb-red transition-colors hover:bg-red-50"
+                        >
+                          Sign Out
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             ) : (
               <Link href="/login" className="hidden sm:block">
-                <Button className="h-10 rounded-full px-6 text-[10px] font-bold uppercase tracking-widest">
+                <Button suppressHydrationWarning className="h-10 rounded-full px-6 text-[10px] font-bold uppercase tracking-widest">
                   Login
                 </Button>
               </Link>

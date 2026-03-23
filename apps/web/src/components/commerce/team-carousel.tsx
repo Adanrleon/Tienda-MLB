@@ -71,6 +71,7 @@ export function TeamCarousel() {
         {/* Scroll controls */}
         <div className="flex gap-2">
           <button
+            suppressHydrationWarning
             onClick={() => scroll('left')}
             className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-slate-300 hover:shadow"
             aria-label="Scroll left"
@@ -78,6 +79,7 @@ export function TeamCarousel() {
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
+            suppressHydrationWarning
             onClick={() => scroll('right')}
             className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-slate-300 hover:shadow"
             aria-label="Scroll right"

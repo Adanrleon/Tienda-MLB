@@ -1,124 +1,105 @@
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
-const products = [
-  {
-    id: 'dodgers-home',
-    name: 'Los Angeles Dodgers Home Elite Jersey',
-    slug: 'los-angeles-dodgers-home-elite-jersey',
-    team: 'Los Angeles Dodgers',
-    category: 'Home',
-    description:
-      'Pinstriped presence with a championship silhouette built for collectors and game-day loyalists.',
-    priceInCents: 18900,
-    featured: true,
-    accent: '#0C2C56',
-    availableSizes: ['S', 'M', 'L', 'XL'],
-    stockBySize: { S: 4, M: 8, L: 6, XL: 3 },
-  },
-  {
-    id: 'yankees-away',
-    name: 'New York Yankees Road Authentic Jersey',
-    slug: 'new-york-yankees-road-authentic-jersey',
-    team: 'New York Yankees',
-    category: 'Away',
-    description:
-      'Road-gray minimalism with a heavyweight baseball identity and a sharp navy finish.',
-    priceInCents: 18200,
-    featured: true,
-    accent: '#132448',
-    availableSizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    stockBySize: { S: 5, M: 7, L: 5, XL: 4, XXL: 2 },
-  },
-  {
-    id: 'braves-alternate',
-    name: 'Atlanta Braves Alternate Club Jersey',
-    slug: 'atlanta-braves-alternate-club-jersey',
-    team: 'Atlanta Braves',
-    category: 'Alternate',
-    description:
-      'Bold navy body with red strike points that push the energy closer to primetime than practice.',
-    priceInCents: 17400,
-    featured: true,
-    accent: '#CE1141',
-    availableSizes: ['S', 'M', 'L', 'XL'],
-    stockBySize: { S: 6, M: 9, L: 7, XL: 3 },
-  },
-  {
-    id: 'padres-city-connect',
-    name: 'San Diego Padres City Connect Jersey',
-    slug: 'san-diego-padres-city-connect-jersey',
-    team: 'San Diego Padres',
-    category: 'City Connect',
-    description:
-      'Electric color-blocking and confident trim designed to stand apart instantly in a jersey wall.',
-    priceInCents: 19600,
-    featured: true,
-    accent: '#2F241D',
-    availableSizes: ['S', 'M', 'L', 'XL'],
-    stockBySize: { S: 2, M: 4, L: 6, XL: 2 },
-  },
-  {
-    id: 'red-sox-home',
-    name: 'Boston Red Sox Home Replica Jersey',
-    slug: 'boston-red-sox-home-replica-jersey',
-    team: 'Boston Red Sox',
-    category: 'Home',
-    description:
-      'Classic white-and-red look with a clean crest placement and reliable everyday wearability.',
-    priceInCents: 14900,
-    featured: false,
-    accent: '#BD3039',
-    availableSizes: ['S', 'M', 'L', 'XL'],
-    stockBySize: { S: 9, M: 12, L: 10, XL: 8 },
-  },
-  {
-    id: 'cubs-throwback',
-    name: 'Chicago Cubs Throwback Heritage Jersey',
-    slug: 'chicago-cubs-throwback-heritage-jersey',
-    team: 'Chicago Cubs',
-    category: 'Throwback',
-    description:
-      'Vintage-inspired striping and rich blue tones with a relaxed, collector-first attitude.',
-    priceInCents: 16800,
-    featured: false,
-    accent: '#0E3386',
-    availableSizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    stockBySize: { S: 3, M: 5, L: 7, XL: 4, XXL: 2 },
-  },
+const TEAM_OPTIONS = [
+  { value: 'Arizona Diamondbacks', accent: '#A71930' },
+  { value: 'Atlanta Braves', accent: '#CE1141' },
+  { value: 'Baltimore Orioles', accent: '#DF4601' },
+  { value: 'Boston Red Sox', accent: '#BD3039' },
+  { value: 'Chicago Cubs', accent: '#0E3386' },
+  { value: 'Chicago White Sox', accent: '#27251F' },
+  { value: 'Cincinnati Reds', accent: '#C6011F' },
+  { value: 'Cleveland Guardians', accent: '#E31937' },
+  { value: 'Colorado Rockies', accent: '#333366' },
+  { value: 'Detroit Tigers', accent: '#0C2340' },
+  { value: 'Houston Astros', accent: '#EB6E1F' },
+  { value: 'Kansas City Royals', accent: '#004687' },
+  { value: 'Los Angeles Angels', accent: '#BA0021' },
+  { value: 'Los Angeles Dodgers', accent: '#005A9C' },
+  { value: 'Miami Marlins', accent: '#00A3E0' },
+  { value: 'Milwaukee Brewers', accent: '#12284B' },
+  { value: 'Minnesota Twins', accent: '#002B5C' },
+  { value: 'New York Mets', accent: '#002D72' },
+  { value: 'New York Yankees', accent: '#132448' },
+  { value: 'Oakland Athletics', accent: '#003831' },
+  { value: 'Philadelphia Phillies', accent: '#E81828' },
+  { value: 'Pittsburgh Pirates', accent: '#FDB827' },
+  { value: 'San Diego Padres', accent: '#2F241D' },
+  { value: 'San Francisco Giants', accent: '#FD5A1E' },
+  { value: 'Seattle Mariners', accent: '#005C5C' },
+  { value: 'St. Louis Cardinals', accent: '#C41E3A' },
+  { value: 'Tampa Bay Rays', accent: '#092C5C' },
+  { value: 'Texas Rangers', accent: '#003278' },
+  { value: 'Toronto Blue Jays', accent: '#134A8E' },
+  { value: 'Washington Nationals', accent: '#AB0003' },
 ];
 
+function slugify(value) {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
+
+const products = TEAM_OPTIONS.map((t, index) => {
+  const isHome = index % 2 === 0;
+  const rawName = `${t.value} ${isHome ? 'Home' : 'Away'} Authentic Jersey`;
+  
+  return {
+    id: slugify(t.value + '-' + (isHome?'home':'away')),
+    name: rawName,
+    slug: slugify(rawName),
+    team: t.value,
+    category: isHome ? 'Home' : 'Away',
+    description: 'Pinstriped presence with a championship silhouette built for collectors and game-day loyalists.',
+    priceInCents: 14900,
+    featured: index % 6 === 0,
+    accent: t.accent,
+    availableSizes: ['S', 'M', 'L', 'XL'],
+    stockBySize: { S: 4, M: 8, L: 6, XL: 3 },
+  };
+});
+
 async function main() {
-  for (const product of products) {
+  console.log('Seeding admin user...');
+  const passwordHash = await bcrypt.hash('admin123', 10);
+  await prisma.user.upsert({
+    where: { email: 'mariacarbonell@gmail.com' },
+    update: {},
+    create: {
+      email: 'mariacarbonell@gmail.com',
+      passwordHash,
+      name: 'Maria Carbonell',
+      role: 'ADMIN',
+    },
+  });
+
+  console.log('Cleaning up old products and relations...');
+  await prisma.cartItem.deleteMany();
+  await prisma.orderItem.deleteMany();
+  await prisma.productImage.deleteMany();
+  await prisma.product.deleteMany();
+
+  console.log(`Seeding ${products.length} products...`);
+  for (const productData of products) {
     await prisma.product.upsert({
-      where: { id: product.id },
-      update: {
-        name: product.name,
-        slug: product.slug,
-        team: product.team,
-        category: product.category,
-        description: product.description,
-        priceInCents: product.priceInCents,
-        featured: product.featured,
-        accent: product.accent,
-        availableSizes: product.availableSizes,
-        stockBySize: product.stockBySize,
-        status: 'ACTIVE',
-      },
-      create: {
-        ...product,
-        status: 'ACTIVE',
-      },
+      where: { slug: productData.slug },
+      update: productData,
+      create: productData,
     });
   }
 
-  console.log(`Seeded ${products.length} products.`);
+  console.log('Seeding completed successfully.');
 }
 
 main()
-  .catch((error) => {
-    console.error(error);
+  .catch((e) => {
+    console.error(e);
     process.exit(1);
   })
   .finally(async () => {

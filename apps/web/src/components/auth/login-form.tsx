@@ -63,84 +63,144 @@ export function LoginForm() {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-      <div className="section-shell-dark hidden p-8 lg:block">
-        <div className="relative z-[1]">
-          <p className="caps-label text-[#f06f83]">Member Access</p>
-          <h2 className="mt-4 font-sans text-5xl font-extrabold tracking-[-0.05em] text-white">
+    <div className="mx-auto w-full max-w-5xl overflow-hidden rounded-[2rem] bg-white shadow-2xl ring-1 ring-slate-900/5 lg:grid lg:min-h-[600px] lg:grid-cols-2">
+      {/* Left side: Hero Image / Branding */}
+      <div className="relative hidden lg:block overflow-hidden">
+        <img
+          src="/images/fondo.jpg"
+          alt="Baseball field"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-mlb-navy/20 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-t from-mlb-navy/90 via-mlb-navy/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 p-12">
+          <p className="font-display tracking-[0.2em] text-mlb-red text-sm font-bold uppercase mb-4">Official MLB Gear</p>
+          <h2 className="text-4xl font-display uppercase tracking-wide text-white leading-tight">
             Sign In To Continue Shopping
           </h2>
-          <p className="mt-5 max-w-md text-sm leading-7 text-white/72">
-            Sign in to unlock cart actions, direct checkout, and a smoother path from
-            product page to payment.
+          <p className="mt-4 max-w-sm text-sm text-white/80 leading-relaxed font-medium">
+            Unlock checkout-ready sessions, exclusive early access, and a tailored home plate for managing your collection.
           </p>
-          <div className="mt-8 grid gap-3">
-            <div className="rounded-[0.9rem] border border-white/10 bg-white/6 px-4 py-4">
-              <p className="font-semibold text-white">Checkout-ready sessions</p>
-              <p className="mt-1 text-sm leading-6 text-white/66">
-                Card and PayPal flows stay connected to your authenticated session.
-              </p>
-            </div>
-            <div className="rounded-[0.9rem] border border-white/10 bg-white/6 px-4 py-4">
-              <p className="font-semibold text-white">Fast re-entry</p>
-              <p className="mt-1 text-sm leading-6 text-white/66">
-                Buy-now and cart redirects return you to the right place automatically.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
 
-      <div className="section-shell mx-auto w-full max-w-xl p-8 lg:p-10">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="caps-label text-scoreboard/50">Account Access</p>
-            <h1 className="mt-2 font-sans text-4xl font-extrabold tracking-[-0.05em] text-scoreboard">
-              {mode === 'login' ? 'Welcome Back' : 'Create Account'}
-            </h1>
-          </div>
-          <Button
-            variant="ghost"
-            onClick={() => setMode((current) => (current === 'login' ? 'register' : 'login'))}
-          >
-            {mode === 'login' ? 'Need an account?' : 'Already have one?'}
-          </Button>
+      {/* Right side: Form Details */}
+      <div className="flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16 bg-white relative">
+        <div className="absolute top-8 right-8">
+          <img src="/images/Major_League_Baseball_logo.svg.webp" alt="MLB Logo" className="h-6 w-auto opacity-20" />
         </div>
 
-        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
-          {mode === 'register' ? (
-            <label className="flex flex-col gap-2">
-              <span className="caps-label text-scoreboard/50">Name</span>
-              <input name="name" required className="form-control" />
-            </label>
-          ) : null}
-          <label className="flex flex-col gap-2">
-            <span className="caps-label text-scoreboard/50">Email</span>
-            <input name="email" type="email" required className="form-control" />
-          </label>
-          <label className="flex flex-col gap-2">
-            <span className="caps-label text-scoreboard/50">Password</span>
-            <input
-              name="password"
-              type="password"
-              required
-              minLength={8}
-              className="form-control"
-            />
-          </label>
-          {error ? <p className="text-sm font-semibold text-seam">{error}</p> : null}
-          <Button className="w-full" type="submit" disabled={isPending}>
-            {isPending ? 'Working...' : mode === 'login' ? 'Login' : 'Register & Login'}
-          </Button>
-        </form>
+        <div className="w-full max-w-sm mx-auto">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-mlb-red mb-2">Account Access</p>
+              <h1 className="font-display text-3xl uppercase tracking-wide text-mlb-navy">
+                {mode === 'login' ? 'Welcome Back' : 'Create Account'}
+              </h1>
+            </div>
+          </div>
 
-        <div className="mt-8 grid gap-3 sm:grid-cols-2">
-          <Button variant="secondary" onClick={() => signIn('google', { redirectTo })}>
-            Continue with Google
-          </Button>
-          <Button variant="secondary" onClick={() => signIn('github', { redirectTo })}>
-            Continue with GitHub
-          </Button>
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            {mode === 'register' && (
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Full Name</label>
+                <input
+                  suppressHydrationWarning
+                  name="name"
+                  required
+                  placeholder="Shohei Ohtani"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium outline-none transition-all placeholder:text-slate-400 focus:border-mlb-red focus:bg-white focus:ring-1 focus:ring-mlb-red"
+                />
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Email Address</label>
+              <input
+                suppressHydrationWarning
+                name="email"
+                type="email"
+                required
+                placeholder="you@example.com"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium outline-none transition-all placeholder:text-slate-400 focus:border-mlb-red focus:bg-white focus:ring-1 focus:ring-mlb-red"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Password</label>
+                {mode === 'login' && (
+                  <button type="button" suppressHydrationWarning className="text-[11px] font-bold text-slate-400 hover:text-mlb-red transition-colors">
+                    Forgot?
+                  </button>
+                )}
+              </div>
+              <input
+                suppressHydrationWarning
+                name="password"
+                type="password"
+                required
+                minLength={8}
+                placeholder="••••••••"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium outline-none transition-all placeholder:text-slate-400 focus:border-mlb-red focus:bg-white focus:ring-1 focus:ring-mlb-red"
+              />
+            </div>
+
+            {error && (
+              <div className="rounded-lg bg-red-50 p-3 text-center border border-red-100">
+                <p className="text-xs font-bold text-mlb-red">{error}</p>
+              </div>
+            )}
+
+            <button
+              suppressHydrationWarning
+              type="submit"
+              disabled={isPending}
+              className="mt-6 w-full rounded-xl bg-mlb-navy py-3.5 text-[11px] font-bold uppercase tracking-[0.2em] text-white shadow-lg shadow-mlb-navy/20 transition-all hover:bg-slate-800 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:transform-none"
+            >
+              {isPending ? 'Authenticating...' : mode === 'login' ? 'Sign In To Account' : 'Create Account & Sign In'}
+            </button>
+          </form>
+
+          <div className="mt-8 relative">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-slate-100" />
+            </div>
+            <div className="relative flex justify-center text-[10px] font-bold uppercase tracking-widest">
+              <span className="bg-white px-4 text-slate-400">Or continue with</span>
+            </div>
+          </div>
+
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <button
+              suppressHydrationWarning
+              type="button"
+              onClick={() => signIn('google', { redirectTo })}
+              className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+            >
+              Google
+            </button>
+            <button
+              suppressHydrationWarning
+              type="button"
+              onClick={() => signIn('github', { redirectTo })}
+              className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+            >
+              GitHub
+            </button>
+          </div>
+
+          <p className="mt-10 text-center text-[11px] font-semibold text-slate-500">
+            {mode === 'login' ? "Don't have an account? " : "Already have an account? "}
+            <button
+              suppressHydrationWarning
+              type="button"
+              onClick={() => setMode(m => m === 'login' ? 'register' : 'login')}
+              className="font-bold text-mlb-navy hover:text-mlb-red transition-colors uppercase tracking-widest ml-1"
+            >
+              {mode === 'login' ? 'Register Now' : 'Sign In'}
+            </button>
+          </p>
         </div>
       </div>
     </div>

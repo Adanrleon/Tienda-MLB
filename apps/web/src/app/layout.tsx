@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { Bebas_Neue, Manrope } from 'next/font/google';
 import type { ReactNode } from 'react';
-import { Footer } from '@/components/layout/footer';
-import { Navbar } from '@/components/layout/navbar';
+import { NavigationShell } from '@/components/layout/navigation-shell';
 import { Providers } from '@/components/providers/providers';
 import { FloatingAdminButton } from '@/components/layout/floating-admin-button';
 import './globals.css';
@@ -33,11 +32,9 @@ export default function RootLayout({
       <body className="font-sans text-scoreboard antialiased">
         <Providers>
           <div className="relative min-h-screen overflow-x-hidden">
-            <Navbar />
-            <main className="relative">
+            <NavigationShell>
               {children}
-            </main>
-            <Footer />
+            </NavigationShell>
             <FloatingAdminButton />
           </div>
         </Providers>

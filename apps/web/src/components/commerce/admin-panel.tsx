@@ -1,7 +1,7 @@
 'use client';
 
 import { ChangeEvent, useState, useTransition } from 'react';
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Edit3, Trash2, ImageIcon, Star } from 'lucide-react';
 import { ApiError, deleteProduct, createOrUpdateProduct } from '@/lib/api';
 import { Product } from '@/types/product';
 import { cn, formatCurrency } from '@/lib/utils';
@@ -20,6 +20,39 @@ const CATEGORY_OPTIONS = [
   'Replica',
   'Authentic',
 ] as const;
+const TEAM_LOGOS: Record<string, string> = {
+  'Arizona Diamondbacks': '109',
+  'Atlanta Braves': '144',
+  'Baltimore Orioles': '110',
+  'Boston Red Sox': '111',
+  'Chicago Cubs': '112',
+  'Chicago White Sox': '145',
+  'Cincinnati Reds': '113',
+  'Cleveland Guardians': '114',
+  'Colorado Rockies': '115',
+  'Detroit Tigers': '116',
+  'Houston Astros': '117',
+  'Kansas City Royals': '118',
+  'Los Angeles Angels': '108',
+  'Los Angeles Dodgers': '119',
+  'Miami Marlins': '146',
+  'Milwaukee Brewers': '158',
+  'Minnesota Twins': '142',
+  'New York Mets': '121',
+  'New York Yankees': '147',
+  'Oakland Athletics': '133',
+  'Philadelphia Phillies': '143',
+  'Pittsburgh Pirates': '134',
+  'San Diego Padres': '135',
+  'San Francisco Giants': '137',
+  'Seattle Mariners': '136',
+  'St. Louis Cardinals': '138',
+  'Tampa Bay Rays': '139',
+  'Texas Rangers': '140',
+  'Toronto Blue Jays': '141',
+  'Washington Nationals': '120',
+};
+
 const TEAM_OPTIONS = [
   { value: 'Arizona Diamondbacks', accent: '#A71930' },
   { value: 'Atlanta Braves', accent: '#CE1141' },
@@ -420,7 +453,7 @@ export function AdminPanel({
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     p.team.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  const ITEMS_PER_PAGE = 5;
+  const ITEMS_PER_PAGE = 10;
   const totalPages = Math.ceil(filteredLibraryProducts.length / ITEMS_PER_PAGE);
   const paginatedLibraryProducts = filteredLibraryProducts.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -433,7 +466,7 @@ export function AdminPanel({
   };
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-7xl">
       {isFormOpen || editingId ? (
       <section className="section-shell p-6 lg:p-8">
         <div className="flex items-center justify-between gap-3">
@@ -738,40 +771,75 @@ export function AdminPanel({
           />
         </div>
 
-        <div className="mt-4 flex-1 space-y-4">
+        <div className="mt-4 flex-1 grid gap-4 lg:grid-cols-2 content-start">
           {paginatedLibraryProducts.length > 0 ? paginatedLibraryProducts.map((product) => (
             <div
               key={product.id}
-              className="rounded-[1.75rem] border border-scoreboard/10 bg-white px-5 py-5 transition-shadow hover:shadow-md"
+              className="group h-full flex flex-col sm:flex-row sm:items-center gap-4 rounded-2xl border border-scoreboard/10 bg-white p-3 transition-all hover:border-mlb-navy/20 hover:shadow-md"
             >
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="max-w-[75%]">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-scoreboard/45">
-                    {product.team}
-                  </p>
-                  <p className="mt-2 font-display text-3xl uppercase leading-none tracking-[0.04em] text-scoreboard">
-                    {product.name}
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-scoreboard/55">
-                    {product.category} | {formatCurrency(product.priceInCents)}
-                  </p>
-                  <p className="mt-3 text-sm text-scoreboard/65">{product.description}</p>
-                  <p className="mt-3 text-xs uppercase tracking-[0.16em] text-scoreboard/45">
-                    Sizes: {product.availableSizes.join(', ')}
-                  </p>
+              <div className="h-32 w-full sm:h-20 sm:w-20 shrink-0 overflow-hidden rounded-xl bg-scoreboard/5 flex items-center justify-center relative">
+                {product.images?.[0]?.url ? (
+                  <img src={product.images[0].url} alt={product.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                ) : (
+                  <ImageIcon className="h-6 w-6 text-scoreboard/20" />
+                )}
+                {product.featured && (
+                  <div className="absolute top-1.5 right-1.5 bg-yellow-400 text-white rounded-full p-0.5 shadow-sm" title="Featured Product">
+                    <Star className="h-3 w-3 fill-current" />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-1 min-w-0 flex flex-col justify-center">
+                <div className="flex items-center gap-2 mb-1 w-full overflow-hidden">
+                  {TEAM_LOGOS[product.team] && (
+                    <img
+                      src={`https://www.mlbstatic.com/team-logos/${TEAM_LOGOS[product.team]}.svg`}
+                      alt={product.team}
+                      className="h-3 w-3 shrink-0"
+                    />
+                  )}
+                  <span className="text-[10px] uppercase tracking-widest text-scoreboard/50 font-bold truncate">{product.team}</span>
+                  <span className="h-1 w-1 rounded-full bg-scoreboard/20 shrink-0" />
+                  <span className="text-[10px] uppercase tracking-widest text-scoreboard/50 font-bold shrink-0">{product.category}</span>
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="secondary" onClick={() => handleEditClick(product)}>
-                    Edit
-                  </Button>
-                  <Button variant="danger" onClick={() => setDeleteConfirmId(product.id)}>
-                    Delete
-                  </Button>
+                <h4 className="font-display text-lg uppercase tracking-wide text-scoreboard truncate">
+                  {product.name}
+                </h4>
+                <div className="flex items-center gap-3 mt-1.5">
+                  <span className="text-sm font-bold text-mlb-navy">{formatCurrency(product.priceInCents)}</span>
                 </div>
+              </div>
+
+              <div className="hidden lg:flex items-center gap-1.5 px-4 w-48 flex-wrap justify-end">
+                {product.availableSizes.map(size => (
+                  <span key={size} className="text-[9px] font-bold text-scoreboard/60 bg-scoreboard/5 border border-scoreboard/10 px-1.5 py-0.5 rounded-sm">
+                    {size}
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex shrink-0 items-center justify-end gap-2 sm:border-l border-scoreboard/10 sm:pl-4 py-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                <button 
+                  suppressHydrationWarning
+                  onClick={() => handleEditClick(product)}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg bg-scoreboard/5 text-scoreboard/60 transition-colors hover:bg-slate-100 hover:text-mlb-navy"
+                  title="Edit Product"
+                >
+                  <Edit3 className="h-4 w-4" />
+                </button>
+                <button 
+                  suppressHydrationWarning
+                  onClick={() => setDeleteConfirmId(product.id)}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-700"
+                  title="Delete Product"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </div>
             </div>
           )) : (
-            <div className="py-20 text-center text-scoreboard/50 text-sm font-semibold">
+            <div className="col-span-full py-20 text-center text-scoreboard/50 text-sm font-semibold">
               No products found matching "{searchQuery}"
             </div>
           )}

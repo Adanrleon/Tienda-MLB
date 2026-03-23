@@ -33,9 +33,19 @@ export function CatalogShell({ products }: { products: Product[] }) {
     'Seattle Mariners', 'St. Louis Cardinals', 'Tampa Bay Rays', 'Texas Rangers',
     'Toronto Blue Jays', 'Washington Nationals'
   ];
+  
+  const ALL_CATEGORIES = [
+    'Home',
+    'Away',
+    'Alternate',
+    'City Connect',
+    'Throwback',
+    'Replica',
+    'Authentic'
+  ];
 
   const teams = ['All', ...ALL_TEAMS];
-  const categories = ['All', ...new Set(products.map((product) => product.category))];
+  const categories = ['All', ...ALL_CATEGORIES];
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = deferredSearch
@@ -74,6 +84,7 @@ export function CatalogShell({ products }: { products: Product[] }) {
         <div className="flex items-center justify-between gap-3">
           <p className="caps-label text-scoreboard/50">Filters</p>
           <button
+            suppressHydrationWarning
             onClick={() => {
               setSearch('');
               setTeamFilter('All');
@@ -91,6 +102,7 @@ export function CatalogShell({ products }: { products: Product[] }) {
               <Search className="h-4 w-4" />
             </div>
             <input
+              suppressHydrationWarning
               id="catalog-search"
               type="text"
               value={search}
@@ -115,6 +127,7 @@ export function CatalogShell({ products }: { products: Product[] }) {
           <div className="mt-3 flex max-h-[300px] flex-col gap-2 overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin', scrollbarColor: '#E2E8F0 transparent' }}>
             {teams.map((team) => (
               <button
+                suppressHydrationWarning
                 key={team}
                 onClick={() => setTeamFilter(team)}
                 className={`flex-shrink-0 rounded-md border px-3 py-2 text-left text-sm font-semibold transition ${teamFilter === team
@@ -133,6 +146,7 @@ export function CatalogShell({ products }: { products: Product[] }) {
           <div className="mt-3 flex flex-col gap-2">
             {categories.map((category) => (
               <button
+                suppressHydrationWarning
                 key={category}
                 onClick={() => setCategoryFilter(category)}
                 className={`rounded-md border px-3 py-2 text-left text-sm font-semibold transition ${categoryFilter === category
@@ -159,16 +173,36 @@ export function CatalogShell({ products }: { products: Product[] }) {
           </div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {paginatedProducts.map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index} />
-          ))}
-        </div>
+        {paginatedProducts.length > 0 ? (
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4 content-start">
+            {paginatedProducts.map((product, index) => (
+              <ProductCard key={product.id} product={product} index={index} />
+            ))}
+          </div>
+        ) : (
+          <div className="section-shell w-full flex flex-col items-center justify-center py-8 px-6 text-center">
+            <div className="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+              <Search className="h-6 w-6 text-slate-400" />
+            </div>
+            <h3 className="font-display text-2xl uppercase tracking-wide text-slate-900">No jerseys found</h3>
+            <p className="mt-2 text-sm text-slate-500 max-w-[300px]">
+              We couldn't find any products perfectly matching your filters.
+            </p>
+            <button 
+              suppressHydrationWarning
+              onClick={() => { setSearch(''); setTeamFilter('All'); setCategoryFilter('All'); }}
+              className="mt-6 text-[11px] font-bold uppercase tracking-widest text-mlb-red hover:text-mlb-navy transition-colors"
+            >
+              Clear all filters
+            </button>
+          </div>
+        )}
 
         {/* Pagination Controls */}
         {totalPages > 0 && (
           <div className="pt-12 flex items-center justify-center gap-1">
             <button
+              suppressHydrationWarning
               onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
               className="flex h-10 w-10 items-center justify-center text-slate-400 hover:text-slate-900 disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
@@ -185,6 +219,7 @@ export function CatalogShell({ products }: { products: Product[] }) {
               ) {
                 return (
                   <button
+                    suppressHydrationWarning
                     key={page}
                     onClick={() => handlePageChange(page)}
                     className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm transition-all ${currentPage === page
@@ -208,6 +243,7 @@ export function CatalogShell({ products }: { products: Product[] }) {
             })}
 
             <button
+              suppressHydrationWarning
               onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
               className="flex h-10 w-10 items-center justify-center text-slate-400 hover:text-slate-900 disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"

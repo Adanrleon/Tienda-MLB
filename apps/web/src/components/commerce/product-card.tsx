@@ -9,11 +9,34 @@ import { Badge } from '../ui/badge';
 const TEAM_LOGOS: Record<string, string> = {
   'Arizona Diamondbacks': '109',
   'Atlanta Braves': '144',
+  'Baltimore Orioles': '110',
   'Boston Red Sox': '111',
   'Chicago Cubs': '112',
+  'Chicago White Sox': '145',
+  'Cincinnati Reds': '113',
+  'Cleveland Guardians': '114',
+  'Colorado Rockies': '115',
+  'Detroit Tigers': '116',
+  'Houston Astros': '117',
+  'Kansas City Royals': '118',
+  'Los Angeles Angels': '108',
   'Los Angeles Dodgers': '119',
+  'Miami Marlins': '146',
+  'Milwaukee Brewers': '158',
+  'Minnesota Twins': '142',
+  'New York Mets': '121',
   'New York Yankees': '147',
+  'Oakland Athletics': '133',
+  'Philadelphia Phillies': '143',
+  'Pittsburgh Pirates': '134',
   'San Diego Padres': '135',
+  'San Francisco Giants': '137',
+  'Seattle Mariners': '136',
+  'St. Louis Cardinals': '138',
+  'Tampa Bay Rays': '139',
+  'Texas Rangers': '140',
+  'Toronto Blue Jays': '141',
+  'Washington Nationals': '120',
 };
 
 export function ProductCard({
@@ -31,11 +54,11 @@ export function ProductCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="group"
+      className="group h-full"
     >
       <Link
         href={`/product/${product.slug}`}
-        className="luxury-card block h-full"
+        className="luxury-card flex flex-col h-full"
       >
         <div className="relative aspect-[4/5] overflow-hidden bg-slate-50">
           {imageUrl ? (
@@ -49,9 +72,9 @@ export function ProductCard({
               No Image
             </div>
           )}
-          
+
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          
+
           <div className="absolute left-4 top-4 flex flex-col gap-2">
             <Badge className="bg-white/90 text-slate-900 backdrop-blur-sm">
               {product.category}
@@ -59,14 +82,14 @@ export function ProductCard({
           </div>
 
           <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-             <div className="flex items-center justify-between gap-2 text-white">
-                <p className="text-xs font-bold uppercase tracking-widest">View Details</p>
-                <div className="h-px flex-1 bg-white/30" />
-             </div>
+            <div className="flex items-center justify-between gap-2 text-white">
+              <p className="text-xs font-bold uppercase tracking-widest">View Details</p>
+              <div className="h-px flex-1 bg-white/30" />
+            </div>
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 flex flex-col flex-1">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2">
@@ -89,8 +112,8 @@ export function ProductCard({
               </p>
             </div>
           </div>
-          
-          <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+
+          <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-4">
             <div className="flex gap-1.5">
               {product.availableSizes.slice(0, 3).map((size) => (
                 <span key={size} className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 text-[10px] font-bold text-slate-500 transition-colors group-hover:border-slate-300 group-hover:text-slate-900">
@@ -103,9 +126,9 @@ export function ProductCard({
                 </span>
               )}
             </div>
-            <button className="text-[10px] font-bold uppercase tracking-widest text-mlb-red transition-colors hover:text-mlb-navy">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-mlb-red transition-colors group-hover:text-mlb-navy">
               Shop Now
-            </button>
+            </span>
           </div>
         </div>
       </Link>

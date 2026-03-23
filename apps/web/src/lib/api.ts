@@ -1,6 +1,5 @@
 import { CheckoutFormValues } from '@/types/checkout';
 import { CartLine, Product } from '@/types/product';
-import { mockProducts } from './mock-data';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
 const API_ORIGIN = API_URL.replace(/\/api\/?$/, '');
@@ -24,23 +23,7 @@ export class ApiError extends Error {
   }
 }
 
-function applyLocalFilters(products: Product[], filters: ProductFilters = {}) {
-  return products.filter((product) => {
-    const matchesTeam = filters.team ? product.team === filters.team : true;
-    const matchesCategory = filters.category
-      ? product.category === filters.category
-      : true;
-    const matchesSearch = filters.search
-      ? `${product.name} ${product.team} ${product.description}`
-          .toLowerCase()
-          .includes(filters.search.toLowerCase())
-      : true;
-    const matchesFeatured =
-      filters.featured === undefined ? true : product.featured === filters.featured;
 
-    return matchesTeam && matchesCategory && matchesSearch && matchesFeatured;
-  });
-}
 
 function buildQuery(filters: ProductFilters) {
   const params = new URLSearchParams();
@@ -116,22 +99,18 @@ function normalizeProduct(product: Product): Product {
 export async function getProducts(filters: ProductFilters = {}) {
   try {
     const products = await request<Product[]>(`/products${buildQuery(filters)}`);
-    return products.length > 0
-      ? products.map(normalizeProduct)
-      : applyLocalFilters(mockProducts, filters);
+    return products.map(normalizeProduct);
   } catch {
-    return applyLocalFilters(mockProducts, filters);
+    return [];
   }
 }
 
 export async function getFeaturedProducts() {
   try {
     const products = await request<Product[]>('/products/featured');
-    return products.length > 0
-      ? products.map(normalizeProduct)
-      : applyLocalFilters(mockProducts, { featured: true }).slice(0, 4);
+    return products.map(normalizeProduct);
   } catch {
-    return applyLocalFilters(mockProducts, { featured: true }).slice(0, 4);
+    return [];
   }
 }
 
@@ -139,7 +118,7 @@ export async function getProductBySlug(slug: string) {
   try {
     return normalizeProduct(await request<Product>(`/products/${slug}`));
   } catch {
-    return mockProducts.find((product) => product.slug === slug) ?? null;
+    return null;
   }
 }
 

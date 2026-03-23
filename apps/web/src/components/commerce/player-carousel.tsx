@@ -39,6 +39,7 @@ export function PlayerCarousel() {
         </div>
         <div className="flex gap-2">
           <button
+            suppressHydrationWarning
             onClick={() => scroll('left')}
             className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 text-white transition hover:bg-slate-700"
             aria-label="Scroll left"
@@ -46,6 +47,7 @@ export function PlayerCarousel() {
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
+            suppressHydrationWarning
             onClick={() => scroll('right')}
             className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 text-white transition hover:bg-slate-700"
             aria-label="Scroll right"
