@@ -5,7 +5,8 @@ import type { ReactNode } from 'react';
 import { Navbar } from './navbar';
 import { Footer } from './footer';
 
-const AUTH_PATHS = ['/login', '/register'];
+const AUTH_PATHS = ['/login', '/register', '/reset-password'];
+
 
 export function NavigationShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();

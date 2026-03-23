@@ -1,10 +1,10 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
 import { Product, CartLine } from '@/types/product';
 import {
   ReactNode,
   createContext,
-  startTransition,
   useContext,
   useEffect,
   useState,
@@ -21,7 +21,9 @@ type CartContextValue = {
   clearCart: () => void;
 };
 
-const STORAGE_KEY = 'tienda-mlb-cart';
+const MULTI_CART_KEY = 'tienda-mlb-multi-carts';
+const LEGACY_KEY = 'tienda-mlb-cart';
+
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function buildCartLineFromProduct(product: Product, size: string): CartLine {
@@ -40,29 +42,51 @@ export function buildCartLineFromProduct(product: Product, size: string): CartLi
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { data: session, status } = useSession();
+  const userId = session?.user?.id || 'guest';
+  
   const [items, setItems] = useState<CartLine[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
+  // Sync from Multi-Cart Map when User ID changes
   useEffect(() => {
+    // Wait for session to be at least known (even if unauthenticated)
+    if (status === 'loading') return;
+
     try {
-      const storedValue = window.localStorage.getItem(STORAGE_KEY);
-
-      if (storedValue) {
-        startTransition(() => {
-          setItems(JSON.parse(storedValue) as CartLine[]);
-        });
+      const stored = window.localStorage.getItem(MULTI_CART_KEY);
+      const carts = stored ? JSON.parse(stored) : {};
+      
+      // Cleanup/Migrate legacy cart to guest if needed
+      const legacy = window.localStorage.getItem(LEGACY_KEY);
+      if (legacy && !carts.guest) {
+        carts.guest = JSON.parse(legacy);
+        window.localStorage.removeItem(LEGACY_KEY);
+        window.localStorage.setItem(MULTI_CART_KEY, JSON.stringify(carts));
       }
+
+      setItems(carts[userId] || []);
     } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
+      setItems([]);
     }
-
     setHydrated(true);
-  }, []);
+  }, [userId, status]);
 
+  // Sync to Multi-Cart Map on changes
   useEffect(() => {
-    if (!hydrated) return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }, [hydrated, items]);
+    if (!hydrated || status === 'loading') return;
+
+    try {
+      const stored = window.localStorage.getItem(MULTI_CART_KEY);
+      const carts = stored ? JSON.parse(stored) : {};
+      
+      // Update only current user's entry
+      carts[userId] = items;
+      window.localStorage.setItem(MULTI_CART_KEY, JSON.stringify(carts));
+    } catch (e) {
+      console.error('Failed to save cart:', e);
+    }
+  }, [items, userId, hydrated, status]);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotalInCents = items.reduce(
@@ -134,3 +158,4 @@ export function useCart() {
 
   return context;
 }
+

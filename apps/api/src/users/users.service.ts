@@ -23,7 +23,49 @@ export class UsersService {
     return this.sanitizeUser(user);
   }
 
+  async findByEmail(email: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    });
+    return user ? this.sanitizeUser(user) : null;
+  }
+
+  async setResetToken(userId: string, token: string, expires: Date) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        resetPasswordToken: token,
+        resetPasswordExpires: expires,
+      },
+    });
+  }
+
+  async findByResetToken(token: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { resetPasswordToken: token },
+    });
+    
+    if (!user || (user.resetPasswordExpires && user.resetPasswordExpires < new Date())) {
+      return null;
+    }
+
+    return user; // Return full user to allow update
+  }
+
+  async updatePassword(userId: string, newPassword: string) {
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        passwordHash,
+        resetPasswordToken: null,
+        resetPasswordExpires: null,
+      },
+    });
+  }
+
   async createCredentialsUser(data: {
+
     email: string;
     name: string;
     password: string;

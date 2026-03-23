@@ -6,6 +6,9 @@ import { AuthService } from './auth.service';
 import { ExchangeSessionDto } from './dto/exchange-session.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+
 
 @Controller('auth')
 export class AuthController {
@@ -28,6 +31,20 @@ export class AuthController {
   exchangeSession(@Body() dto: ExchangeSessionDto) {
     return this.authService.exchangeSession(dto);
   }
+
+  @Public()
+  @Post('forgot-password')
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Public()
+  @Post('reset-password')
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
+  }
+
+
 
   @Get('me')
   me(@CurrentUser() user: RequestUser) {

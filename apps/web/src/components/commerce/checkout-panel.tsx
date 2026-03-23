@@ -432,32 +432,48 @@ export function CheckoutPanel() {
         <h2 className="mt-4 font-sans text-4xl font-extrabold tracking-[-0.04em] text-scoreboard lg:text-[3.4rem]">
           Ready To Pay
         </h2>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-scoreboard/65">
-          {isDirectCheckout
-            ? 'You are paying a single product directly from the product page without sending it through the cart first.'
-            : 'This store does not require delivery or contact forms to complete checkout. If you have items in the cart and you are signed in, you can go directly to card or PayPal payment.'}
-        </p>
 
-        <div className="mt-8 space-y-4">
+        <div className="mt-10 space-y-3">
           {checkoutItems.map((item) => (
             <div
               key={item.id}
-              className="rounded-[0.9rem] border border-scoreboard/10 bg-white px-4 py-4"
+              className="group flex items-center gap-4 rounded-2xl border border-scoreboard/8 bg-white p-3.5 transition-all hover:border-scoreboard/20 hover:shadow-md"
             >
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-semibold text-scoreboard">{item.name}</p>
-                  <p className="text-sm text-scoreboard/55">
-                    {item.team} - Size {item.size} - Qty {item.quantity}
+              {/* Product Thumbnail */}
+              <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-slate-50 p-1.5 ring-1 ring-slate-100 transition-transform group-hover:scale-105">
+                {item.imageUrl ? (
+                  <img
+                    src={item.imageUrl}
+                    alt={item.name}
+                    className="h-full w-full object-contain"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-mlb-navy/5 text-[10px] font-black text-mlb-navy/20 uppercase">
+                    MLB
+                  </div>
+                )}
+              </div>
+
+              {/* Item Info */}
+              <div className="flex flex-1 items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="truncate font-sans font-extrabold text-scoreboard uppercase tracking-tight text-sm">
+                    {item.name}
+                  </p>
+                  <p className="mt-0.5 text-[11px] font-bold uppercase tracking-widest text-scoreboard/40">
+                    {item.team} <span className="mx-1 opacity-20">•</span> Size {item.size} <span className="mx-1 opacity-20">•</span> Qty {item.quantity}
                   </p>
                 </div>
-                <p className="font-sans text-2xl font-extrabold leading-none text-dugout">
-                  {formatCurrency(item.priceInCents * item.quantity)}
-                </p>
+                <div className="text-right">
+                  <p className="font-sans text-xl font-extrabold leading-none text-dugout">
+                    {formatCurrency(item.priceInCents * item.quantity)}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
         </div>
+
       </section>
 
       <aside className="section-shell h-fit p-6">

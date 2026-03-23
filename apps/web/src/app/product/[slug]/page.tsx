@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { ChevronRight, Home } from 'lucide-react';
 import { ProductPurchasePanel } from '@/components/commerce/product-purchase-panel';
-import { JerseyVisual } from '@/components/ui/jersey-visual';
+import { ProductGallery } from '@/components/commerce/product-gallery';
 import { getProductBySlug } from '@/lib/api';
 import { formatCurrency } from '@/lib/utils';
 
@@ -16,62 +18,35 @@ export default async function ProductPage({
     notFound();
   }
 
-  const imageUrl = product.images[0]?.url;
-  const galleryItems = product.images.length
-    ? product.images.slice(0, 4)
-    : [{ url: imageUrl ?? '', alt: product.name }];
-
   return (
-    <div className="space-y-6">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-scoreboard/42">
-        Home / Jerseys / {product.team}
-      </div>
+    <div className="mx-auto max-w-7xl px-6 py-4 lg:px-12 space-y-6">
+
+      <nav className="mt-2 flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-[0.2em] text-scoreboard/40 transition-all">
+
+        <Link 
+          href="/" 
+          className="flex items-center gap-1.5 hover:text-mlb-red transition-colors group"
+        >
+          <Home className="h-3 w-3 transition-transform group-hover:scale-110" />
+          <span>Home</span>
+        </Link>
+        <ChevronRight className="h-3 w-3 stroke-[3px] text-scoreboard/20" />
+        <Link 
+          href="/catalog" 
+          className="hover:text-mlb-red transition-colors"
+        >
+          Jerseys
+        </Link>
+        <ChevronRight className="h-3 w-3 stroke-[3px] text-scoreboard/20" />
+        <span className="font-black text-mlb-navy/60">{product.team}</span>
+      </nav>
+
 
       <div className="grid gap-8 xl:grid-cols-[1.02fr_0.98fr]">
         <section className="section-shell p-5">
-          <div className="grid gap-4 md:grid-cols-[5.5rem_1fr]">
-            <div className="space-y-3">
-              {galleryItems.map((item, index) => (
-                <div
-                  key={`${item.url}-${index}`}
-                  className="overflow-hidden rounded-[0.7rem] border border-scoreboard/8 bg-[var(--page-panel)] p-2"
-                >
-                  {item.url ? (
-                    <img
-                      src={item.url}
-                      alt={item.alt ?? product.name}
-                      className="h-16 w-full object-contain"
-                    />
-                  ) : (
-                    <JerseyVisual
-                      team={product.team}
-                      category={product.category}
-                      accent={product.accent}
-                      className="h-16 rounded-[0.45rem]"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="rounded-[0.9rem] bg-[var(--page-panel)] p-5">
-              {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt={product.name}
-                  className="h-[30rem] w-full rounded-[0.75rem] object-contain lg:h-[38rem]"
-                />
-              ) : (
-                <JerseyVisual
-                  team={product.team}
-                  category={product.category}
-                  accent={product.accent}
-                  className="h-[30rem] rounded-[0.75rem] lg:h-[38rem]"
-                />
-              )}
-            </div>
-          </div>
+          <ProductGallery product={product} />
         </section>
+
 
         <section className="space-y-5">
           <div className="section-shell p-6 lg:p-8">

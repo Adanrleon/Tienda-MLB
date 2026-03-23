@@ -2,8 +2,9 @@ import { CheckoutPanel } from '@/components/commerce/checkout-panel';
 
 export default function CheckoutPage() {
   return (
-    <div className="space-y-6">
-      <section className="section-shell px-6 py-8 lg:px-8">
+    <div className="mx-auto max-w-7xl px-6 py-6 lg:px-12 space-y-6">
+      <section className="section-shell px-6 py-8 lg:px-10">
+
         <p className="caps-label text-scoreboard/42">
           Checkout
         </p>
