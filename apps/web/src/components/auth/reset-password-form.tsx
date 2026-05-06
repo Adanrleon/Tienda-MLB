@@ -9,7 +9,7 @@ export function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
-  
+
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -66,7 +66,7 @@ export function ResetPasswordForm() {
       <div className="text-center p-8">
         <h1 className="text-2xl font-bold text-mlb-navy mb-4 uppercase tracking-tighter">Missing Token</h1>
         <p className="text-slate-500 mb-6">You need a valid reset link to change your password.</p>
-        <button 
+        <button
           onClick={() => router.push('/login')}
           className="text-mlb-red font-bold uppercase tracking-widest text-sm hover:underline"
         >
@@ -150,7 +150,7 @@ export function ResetPasswordForm() {
             {success && (
               <div className="rounded-lg bg-emerald-50 p-4 text-center border border-emerald-100">
                 <p className="text-xs font-semibold text-emerald-700 leading-relaxed">{success}</p>
-                <p className="mt-2 text-[10px] text-emerald-600 font-bold uppercase tracking-widest">Redirecting to login...</p>
+                <p className="mt-2 text-[10px] text-emerald-600 font-bold uppercase tracking-widest">Redirecting to login..</p>
               </div>
             )}
 
@@ -164,7 +164,7 @@ export function ResetPasswordForm() {
             </button>
           </form>
 
-          <p className="mt-10 text-center text-[11px] font-semibold text-slate-500">
+          <p className="mt-10 text-center text-[11px] font-semibold text-slate-5000">
             Remembered your password?
             <button
               suppressHydrationWarning
