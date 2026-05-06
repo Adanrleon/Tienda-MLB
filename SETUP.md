@@ -41,63 +41,177 @@ Esto instalará:
 
 ## 🔐 Paso 3: Configurar Variables de Entorno
 
-### 3.1 Crear archivo `.env`
+### ¿Qué es un archivo `.env`?
 
-Copia el archivo de ejemplo:
+El archivo `.env` es un archivo de **configuración especial** que guarda "secretos" y configuraciones que:
+- ❌ **NO deben compartirse públicamente** (como contraseñas, claves API)
+- ✅ Son **diferentes en cada máquina** (tu PC puede tener valores distintos al de tu colaborador)
+- ✅ Nunca se suben a GitHub (está en `.gitignore`)
+
+Es como un cofre de contraseñas local que solo tu máquina lee.
+
+---
+
+### 3.1 Crear el archivo `.env`
+
+Copia el archivo de ejemplo que ya existe:
 
 ```bash
 cp .env.example .env
 ```
 
+Este comando crea un nuevo archivo llamado `.env` basado en `.env.example`.
+
+---
+
 ### 3.2 Editar el archivo `.env`
 
-Abre `.env` en tu editor y configura las variables necesarias:
+Ahora necesitas abrir el archivo `.env` en tu editor de texto favorito (VS Code, Notepad++, etc.):
+
+**En VS Code:**
+1. Abre la carpeta del proyecto en VS Code
+2. En la barra lateral izquierda, busca el archivo `.env`
+3. Haz clic para abrirlo
+4. Copia y pega este contenido:
 
 ```env
-# ==================
-# FRONTEND (Next.js)
-# ==================
-NEXT_PUBLIC_API_URL=http://localhost:4000/api
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=genera-una-clave-aleatoria-min-32-caracteres
-AUTH_SECRET=genera-otra-clave-aleatoria-min-32-caracteres
+# ========================================
+# CONFIGURACIÓN DEL FRONTEND (Next.js)
+# ========================================
 
-# OAuth (Opcional - déjalo vacío si no usas)
+# Esta es la URL del backend. El frontend usará esta URL para hacer peticiones.
+# Mantén localhost:4000 durante desarrollo
+NEXT_PUBLIC_API_URL=http://localhost:4000/api
+
+# URL del frontend. Se usa para validaciones de seguridad
+NEXTAUTH_URL=http://localhost:3000
+
+# IMPORTANTE: Necesitas generar una clave aleatoria aquí
+# Abre: https://generate-secret.vercel.app/32
+# Copia el resultado (una cadena larga) y pégalo aquí
+NEXTAUTH_SECRET=aqui-pega-una-cadena-aleatoria-de-32-caracteres-que-generaste
+
+# Otra clave aleatoria (igual que arriba, genera una nueva)
+# Puedes usar el mismo generador: https://generate-secret.vercel.app/32
+AUTH_SECRET=aqui-pega-otra-cadena-aleatoria-de-32-caracteres
+
+# Las siguientes variables son para OAuth (login con Google/GitHub)
+# POR AHORA DÉJALAS VACÍAS (no necesitas configurarlas aún)
 AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
 AUTH_GITHUB_ID=
 AUTH_GITHUB_SECRET=
 
-# Stripe (Opcional - solo si tienes claves de prueba)
+# Las siguientes variables son para Stripe (pagos)
+# POR AHORA DÉJALAS VACÍAS (no necesitas configurarlas aún)
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 STRIPE_SUCCESS_URL=http://localhost:3000/checkout/success
 STRIPE_CANCEL_URL=http://localhost:3000/checkout/cancel
 
-# PayPal (Opcional - déjalo vacío si no usas)
+# La siguiente variable es para PayPal (pagos)
+# POR AHORA DÉJALA VACÍA (no necesitas configurarla aún)
 NEXT_PUBLIC_PAYPAL_CLIENT_ID=
 NEXT_PUBLIC_PAYPAL_CURRENCY=USD
 
-# ==================
-# BACKEND (NestJS)
-# ==================
+# ========================================
+# CONFIGURACIÓN DEL BACKEND (NestJS)
+# ========================================
+
+# El puerto donde corre el backend
+# Mantén 4000 (es el que se usa por defecto)
 PORT=4000
+
+# La URL del frontend (el backend necesita saber de dónde pueden venir peticiones)
 FRONTEND_ORIGIN=http://localhost:3000
 
-# Base de Datos
+# ========================================
+# CONFIGURACIÓN DE LA BASE DE DATOS
+# ========================================
+
+# Esta cadena le dice a tu aplicación cómo conectarse a PostgreSQL
+# Estructura: postgresql://usuario:contraseña@host:puerto/nombre_base_datos
+# 
+# Explicación de cada parte:
+#   - usuario: postgres (usuario por defecto de PostgreSQL)
+#   - contraseña: postgres (contraseña por defecto)
+#   - host: localhost (tu máquina local)
+#   - puerto: 5432 (puerto por defecto de PostgreSQL)
+#   - nombre_base_datos: tienda_mlb (el nombre que le dimos)
+#
+# Si PostgreSQL está corriendo correctamente, DÉJALO IGUAL
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/tienda_mlb
 
-# JWT
-JWT_SECRET=genera-una-clave-aleatoria-aqui
+# ========================================
+# CONFIGURACIÓN DE AUTENTICACIÓN JWT
+# ========================================
+
+# Otra clave aleatoria para firmar los tokens de autenticación
+# Genera una nueva con: https://generate-secret.vercel.app/32
+JWT_SECRET=aqui-pega-otra-cadena-aleatoria-para-firmar-tokens
+
+# Cuánto tiempo es válido un token (7 días)
+# DÉJALO IGUAL
 JWT_EXPIRES_IN=7d
 
-# Stripe (Opcional)
+# Las siguientes variables son para Stripe (pagos)
+# POR AHORA DÉJALAS VACÍAS (no necesitas configurarlas aún)
 STRIPE_SECRET_KEY=
 ```
 
-**Notas importantes:**
-- Para `NEXTAUTH_SECRET` y `AUTH_SECRET`, puedes generar una cadena aleatoria con: `openssl rand -base64 32` (en WSL/macOS/Linux) o usar un [generador online](https://generate-secret.vercel.app/32)
-- Las variables opcionales (OAuth, Stripe, PayPal) pueden quedarse vacías para desarrollo
-- El frontend mostrará datos mock si la API no está disponible
+---
+
+### 3.3 Generar las Claves Aleatorias (MUY IMPORTANTE!)
+
+Necesitas generar claves aleatorias para estas variables:
+- `NEXTAUTH_SECRET`
+- `AUTH_SECRET`
+- `JWT_SECRET`
+
+**Paso a paso:**
+
+1. Abre esta página en tu navegador: https://generate-secret.vercel.app/32
+
+2. Verás un botón que dice "Generate" o una cadena de caracteres ya generada
+
+3. Copia toda esa cadena (Ctrl+C)
+
+4. Vuelve a tu archivo `.env` y busca `NEXTAUTH_SECRET=aqui-pega-una-cadena...`
+
+5. Borra el texto después del `=` y pega lo que copiaste
+
+6. Resultado debe verse así:
+   ```env
+   NEXTAUTH_SECRET=a7x9k2mP9qL3vN5bW8cD1eF4gH6jK7mN0pQ2rS3tU5
+   ```
+
+7. **Repite esto 2 veces más** para `AUTH_SECRET` y `JWT_SECRET` (genera nuevas claves cada vez)
+
+---
+
+### 3.4 Verificar que todo está correcto
+
+Tu archivo `.env` debe verse así cuando termines:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000/api
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=a7x9k2mP9qL3vN5bW8cD1eF4gH6jK7mN0pQ2rS3tU5
+AUTH_SECRET=z1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0
+PORT=4000
+FRONTEND_ORIGIN=http://localhost:3000
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/tienda_mlb
+JWT_SECRET=m9n8o7p6q5r4s3t2u1v0w9x8y7z6a5b4c3d2e1f0
+JWT_EXPIRES_IN=7d
+```
+
+**Checklist:**
+- ✅ `NEXTAUTH_SECRET` no está vacío y tiene caracteres aleatorios
+- ✅ `AUTH_SECRET` no está vacío y tiene caracteres aleatorios diferentes
+- ✅ `JWT_SECRET` no está vacío y tiene caracteres aleatorios diferentes
+- ✅ `DATABASE_URL` dice `postgresql://postgres:postgres@localhost:5432/tienda_mlb`
+- ✅ El resto de variables opcionales pueden estar vacías
+
+**Guarda el archivo (Ctrl+S en VS Code)**
 
 ---
 
