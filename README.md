@@ -1,54 +1,31 @@
 # Tienda MLB
 
-E-commerce fullstack desacoplado para la venta de jerseys MLB, siguiendo la especificacion final:
+Una tienda en línea de jerseys de la MLB diseñada para mostrar un proyecto real de comercio electrónico. Aquí puedes navegar productos, agregar al carrito, iniciar sesión y completar compras.
 
-- `apps/web`: Next.js + React + Tailwind CSS + Framer Motion + NextAuth.js
-- `apps/api`: NestJS + Prisma + PostgreSQL + Stripe
+## Qué es
 
-## Arquitectura
+Tienda MLB es una tienda web para vender camisetas y productos de béisbol de la MLB. Está pensada para ser una demostración de una experiencia de compra organizada, con catálogo, carrito de compras y pago.
 
-- Frontend SSR/CSR hibrido con App Router
-- Backend REST independiente
-- PostgreSQL como base de datos relacional
-- Prisma como ORM
-- Login obligatorio para carrito y checkout
-- Ruta `/admin` protegida por rol `ADMIN`
+## Lo que incluye
 
-## Estructura
+- Catálogo de productos de MLB
+- Página de detalle de producto
+- Carrito con cantidades actualizables
+- Proceso de checkout
+- Inicio de sesión para usar el carrito y pagar
+- Panel de administración protegido para gestionar productos
 
-```text
-.
-+-- apps/
-|   +-- api/
-|   |   +-- prisma/
-|   |   \-- src/
-|   \-- web/
-|       \-- src/
-+-- .env.example
-\-- package.json
-```
+## Por qué es útil
 
-## Variables de entorno
+Este proyecto sirve para presentar cómo sería un comercio electrónico moderno con: navegación de catálogo, control de sesiones, carrito persistente y un área privada para administrar productos.
 
-Usa `.env.example` como base. Las principales son:
+## Cómo usarlo
 
-- `NEXT_PUBLIC_API_URL`
-- `NEXTAUTH_URL`
-- `NEXTAUTH_SECRET`
-- `AUTH_GOOGLE_ID`
-- `AUTH_GOOGLE_SECRET`
-- `AUTH_GITHUB_ID`
-- `AUTH_GITHUB_SECRET`
-- `DATABASE_URL`
-- `JWT_SECRET`
-- `FRONTEND_ORIGIN`
-- `STRIPE_SECRET_KEY`
-- `STRIPE_SUCCESS_URL`
-- `STRIPE_CANCEL_URL`
+1. Clona el repositorio.
+2. Instala dependencias en la raíz.
+3. Inicia el backend y el frontend.
 
-## Scripts
-
-Desde la raiz:
+### Comandos básicos
 
 ```bash
 npm install
@@ -56,42 +33,17 @@ npm run dev:api
 npm run dev:web
 ```
 
-## Backend
+## Estructura principal
 
-Endpoints principales:
+- `apps/web`: interfaz de la tienda
+- `apps/api`: servidor que sirve productos, carrito y autenticación
 
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/session/exchange`
-- `GET /api/products`
-- `GET /api/products/featured`
-- `GET /api/products/:slug`
-- `GET /api/cart`
-- `POST /api/cart/items`
-- `PATCH /api/cart/items/:itemId`
-- `DELETE /api/cart/items/:itemId`
-- `POST /api/checkout/session`
-- `POST /api/admin/products`
-- `PATCH /api/admin/products/:id`
-- `DELETE /api/admin/products/:id`
-- `POST /api/admin/products/upload`
+## Qué se necesita configurar
 
-## Frontend
+- Variables de entorno para la API y autenticación
+- Datos de pago para el checkout
+- Usuario con rol `ADMIN` para el panel de administración
 
-Pantallas incluidas:
+## Nota breve
 
-- `/`
-- `/catalog`
-- `/product/[slug]`
-- `/cart`
-- `/checkout`
-- `/login`
-- `/admin`
-
-La UI usa datos mock si la API aun no esta corriendo, para que el frontend no quede bloqueado.
-
-## Notas
-
-- El carrito del frontend persiste en `localStorage` como fallback visual y de UX.
-- El checkout usa Stripe si `STRIPE_SECRET_KEY` esta configurada; si no, devuelve una URL mock de exito.
-- Para habilitar el panel admin, asigna el rol `ADMIN` a un usuario en la base de datos.
+La tienda está pensada para funcionar como demo completa. Si la API o la pasarela de pago no están activas, algunos flujos pueden caer en modo demostración.
