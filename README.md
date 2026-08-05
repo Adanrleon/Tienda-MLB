@@ -43,7 +43,3 @@ npm run dev:web
 - Variables de entorno para la API y autenticación
 - Datos de pago para el checkout
 - Usuario con rol `ADMIN` para el panel de administración
-
-## Nota breve
-
-La tienda está pensada para funcionar como demo completa. Si la API o la pasarela de pago no están activas, algunos flujos pueden caer en modo demostración.
