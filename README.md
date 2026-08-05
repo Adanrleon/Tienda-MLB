@@ -15,6 +15,18 @@ Tienda MLB es una tienda web para vender camisetas y productos de béisbol de la
 - Inicio de sesión para usar el carrito y pagar
 - Panel de administración protegido para gestionar productos
 
+## Stack tecnológico
+
+- **Next.js**: sirve la tienda en el navegador y maneja las páginas del frontend.
+- **React**: construye los componentes visuales de la aplicación.
+- **Tailwind CSS**: define el estilo y diseño responsivo de la interfaz.
+- **Framer Motion**: anima las transiciones y hace la experiencia más fluida.
+- **NextAuth.js**: gestiona el inicio de sesión y la sesión del usuario.
+- **NestJS**: corre el backend que atiende los datos de productos, carrito y usuarios.
+- **Prisma**: maneja la base de datos y realiza las consultas con seguridad.
+- **PostgreSQL**: almacena los productos, usuarios, carrito y pedidos.
+- **Stripe**: procesa el pago y crea el flujo de checkout.
+
 ## Por qué es útil
 
 Este proyecto sirve para presentar cómo sería un comercio electrónico moderno con: navegación de catálogo, control de sesiones, carrito persistente y un área privada para administrar productos.
